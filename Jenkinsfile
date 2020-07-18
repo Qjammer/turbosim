@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     stages {
-		stage('B')
         stage('Build') {
 			agent {
 				docker { image 'conanio/gcc10' }
