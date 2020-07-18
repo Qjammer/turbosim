@@ -1,0 +1,11 @@
+.conan
+build
+package
+
+
+
+# gettext binary files
+*.gmo
+*.mo
+
+.vscode

@@ -1,0 +1,28 @@
+# Catalan translations for PACKAGE package.
+# Copyright (C) 2020 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#  <conan@09e02738999b>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-13 16:45+0000\n"
+"PO-Revision-Date: 2020-07-11 15:13+0000\n"
+"Last-Translator:  <conan@09e02738999b>\n"
+"Language-Team: Catalan\n"
+"Language: ca\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: main.cpp:28
+msgid "flashlight"
+msgstr "llanterna"
+
+#: main.cpp:30
+msgid "You have deleted {1} file"
+msgid_plural "You have deleted {1} files"
+msgstr[0] "Has esborrat {1} arxiu"
+msgstr[1] "Has esborrat {1} arxius"
