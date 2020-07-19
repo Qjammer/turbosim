@@ -8,7 +8,7 @@ pipeline {
 			}
             steps {
                 sh 'echo Hello World > testArtifact.rtf'
-				sh 'conan install -if build . -s build_type=Release'
+				sh 'conan info .'
 				archiveArtifacts artifacts: 'testArtifact.rtf', fingerprint: true
             }
         }
