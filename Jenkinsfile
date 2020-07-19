@@ -8,7 +8,7 @@ pipeline {
 			}
             steps {
                 sh 'echo Hello World > testArtifact.rtf'
-				sh 'conan info .'
+				sh 'conan create .'
 				archiveArtifacts artifacts: 'testArtifact.rtf', fingerprint: true
             }
         }
