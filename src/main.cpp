@@ -1,10 +1,6 @@
-#ifdef __cpp_modules
-	import <iostream>;
-	import <filesystem>;
-#else
-	#include  <iostream>
-	#include <filesystem>
-#endif
+#include  <iostream>
+#include <filesystem>
+
 
 #include <boost/locale.hpp>
 #include <boost/dll/runtime_symbol_info.hpp>
