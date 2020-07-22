@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    options {
+        ansiColor('xterm')
+    }
     stages {
         stage('Build') {
 			agent {
@@ -8,7 +10,7 @@ pipeline {
 			}
             steps {
                 cache(caches: [[$class: 'ArbitraryFileCache', excludes: '', includes: 'package**', path: '.conan']], maxCacheSize: 0) {
-				    sh 'conan create . --build missing -s build_type=Debug'
+				    sh 'conan create . --build missing --profile default'
                 }
                 sh 'echo Hello World > testArtifact.rtf'
 				archiveArtifacts artifacts: 'testArtifact.rtf', fingerprint: true
