@@ -10,7 +10,7 @@ pipeline {
 			}
             steps {
                 cache(caches: [[$class: 'ArbitraryFileCache', excludes: '', includes: 'package**', path: '.conan']], maxCacheSize: 0) {
-				    sh 'conan create . --build missing --profile ./conan/profiles/default'
+				    sh 'conan create . --profile ./conan/profiles/default'
                 }
                 sh 'echo Hello World > testArtifact.rtf'
 				archiveArtifacts artifacts: 'testArtifact.rtf', fingerprint: true
