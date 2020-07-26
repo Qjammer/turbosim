@@ -10,6 +10,10 @@ class HelloConan(ConanFile):
 	}
 	default_options = {
 		"shared": False,
+		"boost:zlib": False,
+		"boost:bzip2": False,
+		"boost:lzma": False,
+		"boost:zstd": False,
 		"boost:shared": True,
 		"boost:without_math": True,
 		"boost:without_wave": True,
