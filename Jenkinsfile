@@ -13,7 +13,7 @@ pipeline {
 				    sh 'conan create . --build missing --profile conan/profiles/default'
                 }
                 sh 'echo Hello World > testArtifact.rtf'
-				archiveArtifacts artifacts: 'package/**', fingerprint: true
+				archiveArtifacts artifacts: '**', fingerprint: true
             }
         }
     }
