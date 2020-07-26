@@ -22,7 +22,7 @@ class HelloConan(ConanFile):
 		"boost:without_exception": True,
 		"boost:without_graph": True,
 		"boost:without_iostreams": True,
-		"boost:without_locale": True, # Change me
+		"boost:without_locale": False, # False
 		"boost:without_log": True,
 		"boost:without_program_options": True,
 		"boost:without_random": True,
@@ -37,7 +37,7 @@ class HelloConan(ConanFile):
 		"boost:without_chrono": True,
 		"boost:without_date_time": True,
 		"boost:without_atomic": True,
-		"boost:without_filesystem": True, # Change me
+		"boost:without_filesystem": False, # False
 		"boost:without_system": True,
 		"boost:without_graph_parallel": True,
 		"boost:without_python": True,
