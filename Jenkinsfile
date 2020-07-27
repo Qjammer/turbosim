@@ -11,7 +11,7 @@ pipeline {
 			steps {
 				sh 'pwd'
 				script {
-					CONAN_CACHE_LOCATION = sh ('conan config get storage.path', returnStdout: true)
+					CONAN_CACHE_LOCATION = sh (script: 'conan config get storage.path', returnStdout: true)
 					echo "$CONAN_CACHE_LOCATION"
 					echo "${CONAN_CACHE_LOCATION}"
 				}
