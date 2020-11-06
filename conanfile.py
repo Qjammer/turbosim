@@ -9,41 +9,7 @@ class HelloConan(ConanFile):
 		"shared": [True, False]
 	}
 	default_options = {
-		"shared": False,
-		"boost:zlib": False,
-		"boost:bzip2": False,
-		"boost:lzma": False,
-		"boost:zstd": False,
-		"boost:shared": True,
-		"boost:without_math": True,
-		"boost:without_wave": True,
-		"boost:without_container": True,
-		"boost:without_contract": True,
-		"boost:without_exception": True,
-		"boost:without_graph": True,
-		"boost:without_iostreams": True,
-		"boost:without_locale": False, # False
-		"boost:without_log": True,
-		"boost:without_program_options": True,
-		"boost:without_random": True,
-		"boost:without_regex": True,
-		"boost:without_mpi": True,
-		"boost:without_serialization": True,
-		"boost:without_coroutine": True,
-		"boost:without_fiber": True,
-		"boost:without_context": True,
-		"boost:without_timer": True,
-		"boost:without_thread": True,
-		"boost:without_chrono": True,
-		"boost:without_date_time": True,
-		"boost:without_atomic": True,
-		"boost:without_filesystem": False, # False
-		"boost:without_system": True,
-		"boost:without_graph_parallel": True,
-		"boost:without_python": True,
-		"boost:without_stacktrace": True,
-		"boost:without_test": True,
-		"boost:without_type_erasure": True,
+		"shared": False
 	}
 	generators = "cmake"
 	exports_sources = "src*"
@@ -53,7 +19,8 @@ class HelloConan(ConanFile):
 	build_folder = "build"
 	package_folder = "package"
 
-	requires = ["boost/1.72.0"]
+
+	requires = ["eigen/3.3.7"]
 	
 	def configure(self):
 		#self.options['icu'].with_dyload = False
@@ -75,7 +42,7 @@ class HelloConan(ConanFile):
 
 	def package(self):
 		cmake = self.configure_cmake()
-		cmake.install()
+		#cmake.install()
 		self.copy("*", src="bin")
 		self.copy("*.h", src="src", dst="include")
 		#self.copy("*.a", dst="lib", keep_path=False)
