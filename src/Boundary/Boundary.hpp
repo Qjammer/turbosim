@@ -1,8 +1,11 @@
 #pragma once
+#include "../Math/Parameter/Parameter.hpp"
 
-class Boundary{
+class Boundary {
+		int id;
 	public:
-		virtual int getId() const = 0;
+		Boundary(int id): id(id) {}
+		virtual int getId() const {return this->id;};
 		virtual int getParameterCount() const = 0;
-		virtual float getParameter(int i) const = 0;
+		virtual Parameter getParameter(int i) const = 0;
 };
