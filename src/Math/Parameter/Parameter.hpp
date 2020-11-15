@@ -1,11 +1,13 @@
 #pragma once
 
+typedef int ParameterId;
+
 class Parameter {
-	int id;
+	ParameterId id;
 	float value;
 	public:
-		Parameter(int id, float initialValue);
-		int getId() const;
+		Parameter(ParameterId id, float initialValue);
+		ParameterId getId() const;
 		float getValue() const;
 		void setValue(float v);
 };

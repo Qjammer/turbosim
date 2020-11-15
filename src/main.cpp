@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include "Math/Constraint/Constraint.hpp"
 #include "Math/Algebra/Jacobian/JacobianCalculator.hpp"
+#include "Math/Algebra/GradientDescent/GradientDescent.hpp"
 
 class SimpleConstraint: public Constraint{
 	std::shared_ptr<Parameter> p1;
@@ -34,27 +35,22 @@ class SimpleConstraint: public Constraint{
 
 int main(int, char**) {
 	auto JC = JacobianCalculator();
+	auto GD = GradientDescent(JC);
+
 	auto p1 = std::make_shared<Parameter>(1, 0.0);
 	auto p2 = std::make_shared<Parameter>(2, 1.0);
+	std::vector<std::weak_ptr<Parameter>> parameters = {p1,p2};
+	std::map<ParameterId, std::weak_ptr<Parameter>> parameterMap;
+	for(const auto& p: parameters){
+		parameterMap[p.lock()->getId()] = p;
+	}
 
 	auto c1 = std::make_shared<SimpleConstraint>(1,p1,p2);
-	const std::vector<std::weak_ptr<const Constraint>> constraints = {c1};
-	std::cout<<"Id"<<"\t"<<"Val"<<"\t"<<"dc/dp"<<'\n';
-	for(auto param: c1->getDependentParameters()){
-		auto lp = param.lock();
-		std::cout<<lp->getId()<<"\t"<<lp->getValue()<<"\t"<<c1->getValueDerivative(*lp)<<'\n';
-	}
-	std::cout<<std::flush;
+	std::vector<std::weak_ptr<Constraint>> constraints = {c1};
 
-	for(auto valuePair:JC.getConstraintValues(constraints)){
-		std::cout<< valuePair.first << " " <<valuePair.second<< '\n';
+	for(int i = 0; i < 100; ++i){
+		GD.gradientDescentTick(parameterMap, constraints);
 	}
 
-	std::cout<< "c_id\tp_id\tdcdp\n";
-	for(auto vp1:JC.getSparseJacobian(constraints)){
-		for(auto vp2: vp1.second){
-			std::cout<< vp1.first << '\t' <<vp2.first<<'\t'<<vp2.second<< '\n';
-		}
-	}
 	return 0;
 }
