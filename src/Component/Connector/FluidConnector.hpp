@@ -31,7 +31,7 @@ class FluidConnector: public Component{
 				return 3;
 			}
 
-			float getInvariant(int i) const override {
+			double getInvariant(int i) const override {
 				switch(i) {
 					case 0:
 						return this->getMassInvariant();
@@ -42,7 +42,7 @@ class FluidConnector: public Component{
 				}
 			}
 
-			float getInvariantDerivative(int invariant, int parameter) const override {
+			double getInvariantDerivative(int invariant, int parameter) const override {
 				switch(i) {
 					case 0:
 						return this->getMassInvariantDerivative(parameter);
@@ -51,13 +51,13 @@ class FluidConnector: public Component{
 				}
 			}
 
-			float getMassInvariant() const {
+			double getMassInvariant() const {
 				auto m0 = this->getMassFlow(0);
 				auto m1 = this->getMassFlow(1);
 				return m0 - m1;
 			}
 
-			float getEnergyInvariant() const {
+			double getEnergyInvariant() const {
 				auto E0 = this->getEnergy(0);
 				auto E1 = this->getEnergy(1);
 
@@ -65,7 +65,7 @@ class FluidConnector: public Component{
 			}
 
 
-			float getMassFlow(int i) const {
+			double getMassFlow(int i) const {
 				auto& boundary = (i == 0 ? this->boundary0. : this->boundary1).lock();
 				auto v = boundary.lock()->getVelocity(false);
 				auto A = boundary.lock()->getSection();
@@ -74,7 +74,7 @@ class FluidConnector: public Component{
 				return v * A * powf(P, 1/AIR_GAMMA);
 			}
 
-			float getEnergy(int i) const
+			double getEnergy(int i) const
 				auto& boundary = (i == 0 ? this->boundary0. : this->boundary1).lock();
 				auto v = boundary.lock()->getVelocity(false);
 				auto T = boundary.lock()->getTemperature();

@@ -4,10 +4,12 @@ typedef int ParameterId;
 
 class Parameter {
 	ParameterId id;
-	float value;
+	double value;
 	public:
-		Parameter(ParameterId id, float initialValue);
+		Parameter(ParameterId id, double initialValue);
 		ParameterId getId() const;
-		float getValue() const;
-		void setValue(float v);
+		double getValue() const;
+		void setValue(double v);
+		operator double() const;
+		Parameter& operator =(double newValue);
 };

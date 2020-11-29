@@ -3,52 +3,41 @@
 #include <memory>
 #include <map>
 #include <math.h>
-#include <Eigen/Dense>
 #include "Math/Constraint/Constraint.hpp"
 #include "Math/Algebra/Jacobian/JacobianCalculator.hpp"
-#include "Math/Algebra/GradientDescent/GradientDescent.hpp"
+#include "Math/Algebra/GradientDescent/NewtonMethod.hpp"
+#include "Component/Tank/Tank.hpp"
 
-class SimpleConstraint: public Constraint{
-	std::shared_ptr<Parameter> p1;
-	std::shared_ptr<Parameter> p2;
-	public:
-		SimpleConstraint(int id, std::shared_ptr<Parameter> p1, std::shared_ptr<Parameter> p2)
-			:Constraint(id),p1(p1), p2(p2){
-		}
-		float getValue() const {
-			return p1->getValue() - p2->getValue();
-		}
-		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const {
-			return {p1, p2};
-		}
-
-		float getValueDerivative(const Parameter& p) const {
-			if(p.getId() == this->p1->getId()) {
-				return 1.0;
-			}
-			if(p.getId() == this->p2->getId()) {
-				return -1.0;
-			}
-			return 0.0;
-		}
-};
 
 int main(int, char**) {
 	auto JC = JacobianCalculator();
-	auto GD = GradientDescent(JC);
+	auto GD = NewtonMethod(JC);
 
-	auto p1 = std::make_shared<Parameter>(1, 0.0);
-	auto p2 = std::make_shared<Parameter>(2, 1.0);
-	std::vector<std::weak_ptr<Parameter>> parameters = {p1,p2};
+	auto pv = std::make_shared<Parameter>(1, 80.0);
+	auto pP = std::make_shared<Parameter>(2, 0.9e5);
+	auto pT = std::make_shared<Parameter>(3, 253);
+	std::vector<std::weak_ptr<Parameter>> parameters = {pv,pP,pT};
 	std::map<ParameterId, std::weak_ptr<Parameter>> parameterMap;
 	for(const auto& p: parameters){
 		parameterMap[p.lock()->getId()] = p;
 	}
 
-	auto c1 = std::make_shared<SimpleConstraint>(1,p1,p2);
-	std::vector<std::weak_ptr<Constraint>> constraints = {c1};
+	auto boundary = std::make_shared<FluidBoundary>(1,pv,pP,pT,1);
+	auto tank = Tank(1, {1,2}, boundary, 1e5, 273);
+	std::vector<std::weak_ptr<Constraint>> constraints = tank.getConstraints();
 
-	for(int i = 0; i < 100; ++i){
+	for(int i = 0; i < 20; ++i){
+		std::cout<<"it: "<<i<<'\n';
+		std::cout<<"\tParameters:\n";
+		for(const auto& parameterp: parameters){
+			const auto& lp = parameterp.lock();
+			std::cout<<'\t'<<lp->getId()<<'\t'<<lp->getValue()<<'\n';
+		}
+		std::cout<<"\tConstraints:\n";
+		for(const auto& constraintp: constraints){
+			const auto& lc = constraintp.lock();
+			std::cout<<'\t'<<lc->getId()<<'\t'<<lc->getValue()<<'\n';
+		}
 		GD.gradientDescentTick(parameterMap, constraints);
 	}
 
