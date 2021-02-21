@@ -34,17 +34,12 @@ class NewtonMethod {
 			}
 
 			std::cout<<"SJ\n"<<Eigen::MatrixXd(constraintJacobian)<<'\n';
-			std::cout<<"DJ\n"<<Eigen::MatrixXd(denseJacobian)<<'\n';
-			std::cout<<"CV\n"<<Eigen::MatrixXd(constraintValues)<<'\n';
 			std::cout<<"PD\n"<<Eigen::MatrixXd(parameterDeltas)<<'\n';
 			std::cout<<"PD2\n"<<Eigen::MatrixXd(parameterDeltas2)<<'\n';
-			std::cout<<"Multiplication1:\n"<<constraintJacobian * parameterDeltas<<'\n';
-			std::cout<<"Multiplication2:\n"<<constraintJacobian * parameterDeltas2<<'\n';
-			std::cout<<"Residual1:\t"<<(constraintJacobian * parameterDeltas - constraintValues).norm()/constraintValues.norm()<<'\n';
-			std::cout<<"Residual2:\t"<<(constraintJacobian * parameterDeltas2 - constraintValues).norm()/constraintValues.norm()<<'\n';
 
 			const auto parameterValues = this->getParameterValues(parameters);
-			const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas);
+			//const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas);
+			const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas2);
 			this->updateParams(parameters, updatedParameterValues);
 		}
 

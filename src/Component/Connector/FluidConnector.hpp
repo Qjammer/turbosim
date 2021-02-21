@@ -18,6 +18,7 @@ class FluidConnector: public Component{
 			const Boundary& getBoundary(int i) const override {
 				return this->getBoundary(i);
 			}
+
 			Boundary& getBoundary(int i) override {
 				switch(i){
 					case 0:
