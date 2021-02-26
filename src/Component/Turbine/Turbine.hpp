@@ -24,7 +24,7 @@ class Turbine : public Component {
 		{
 			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineMassConstraint>(constraintIds[0], this)));
 			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineEnergyConstraint>(constraintIds[1], this)));
-			//this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineIsentropicProcessConstraint>(constraintIds[2], this)));
+			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineIsentropicProcessConstraint>(constraintIds[2], this)));
 		}
 
 		bool registerFluidBoundary(std::shared_ptr<FluidBoundary> boundary, int localBoundary){
@@ -44,7 +44,7 @@ class Turbine : public Component {
 
 		bool registerAxialBoundary(std::shared_ptr<AxialBoundary> boundary, int localBoundary){
 			auto registerPair = boundary->registerEndpoint();
-			if(std::get<0>(registerPair)){
+			if(!std::get<0>(registerPair)){
 				return false;
 			}
 			if(localBoundary == 0){
@@ -74,11 +74,18 @@ class Turbine : public Component {
 				allParams.insert(allParams.end(), PParams.begin(), PParams.end());
 			}
 
+			if(this->fwdAxle != nullptr){
+				auto wParams = this->fwdAxle->getVelocityParameters();
+				auto PParams = this->fwdAxle->getPowerParameters();
+				allParams.insert(allParams.end(), wParams.begin(), wParams.end());
+				allParams.insert(allParams.end(), PParams.begin(), PParams.end());
+			}
+
 			return allParams;
 		}
 
 		double getTRatio() const {
-			return this->inlet->getTemperature()/this->outlet->getTemperature();
+			return this->outlet->getTemperature()/this->inlet->getTemperature();
 		}
 
 		double getTRatioDerivative(const Parameter& parameter) const {
@@ -87,11 +94,11 @@ class Turbine : public Component {
 			auto dTidx = this->inlet->getTemperatureDerivative(parameter);
 			auto dTodx = this->outlet->getTemperatureDerivative(parameter);
 
-			return (dTidx * To - dTodx * Ti) / (To * To);
+			return (dTodx * Ti - To * dTidx) / (Ti * Ti);
 		}
 
 		double getPRatio() const {
-			return this->inlet->getPressure()/this->outlet->getPressure();
+			return this->outlet->getPressure()/this->inlet->getPressure();
 		}
 
 		double getPRatioDerivative(const Parameter& parameter) const {
@@ -99,8 +106,7 @@ class Turbine : public Component {
 			auto Po = this->outlet->getPressure();
 			auto dPidx = this->inlet->getPressureDerivative(parameter);
 			auto dPodx = this->outlet->getPressureDerivative(parameter);
-
-			return (dPidx * Po - dPodx * Pi) / (Po * Po);
+			return (dPodx * Pi - Po * dPidx ) / (Pi * Pi);
 		}
 
 		double getInletMassFlow() const {
@@ -133,7 +139,13 @@ class Turbine : public Component {
 			return this->outlet->getSpecificEnthalpyDerivative(p, this->outletDir);
 		}
 
+		double getAxialPower() {
+			return this->fwdAxle->getPower(this->fwdAxleDir);
+		}
 
+		double getAxialPowerDerivative(const Parameter& p) {
+			return this->fwdAxle->getPowerDerivative(p,this->fwdAxleDir);
+		}
 };
 
 class TurbineMassConstraint : public Constraint {
@@ -163,12 +175,42 @@ class TurbineEnergyConstraint: public Constraint {
 		{}
 
 		double getValue() const override {
-			return this->turbine->getInletTotalEnthalpy() - this->turbine->getOutletTotalEnthalpy();
+			return this->getInletEnergy()
+			     + this->getOutletEnergy()
+				 + this->turbine->getAxialPower();
 
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
-			return this->turbine->getInletTotalEnthalpyDerivative(parameter) - this->turbine->getOutletTotalEnthalpyDerivative(parameter);
+			return this->getInletEnergyDerivative(parameter)
+				 + this->getOutletEnergyDerivative(parameter)
+				 + this->turbine->getAxialPowerDerivative(parameter);
+		}
+
+		double getInletEnergy() const {
+			auto mdot = this->turbine->getInletMassFlow();
+			auto h = this->turbine->getInletTotalEnthalpy();
+			return mdot * h;
+		}
+		double getInletEnergyDerivative(const Parameter& p) const {
+			auto mdot  = this->turbine->getInletMassFlow();
+			auto mdotD = this->turbine->getInletMassFlowDerivative(p);
+			auto h  = this->turbine->getInletTotalEnthalpy();
+			auto hD = this->turbine->getInletTotalEnthalpyDerivative(p);
+			return mdot * hD + mdotD * h;
+		}
+
+		double getOutletEnergy() const {
+			auto mdot = this->turbine->getOutletMassFlow();
+			auto h = this->turbine->getOutletTotalEnthalpy();
+			return mdot * h;
+		}
+		double getOutletEnergyDerivative(const Parameter& p) const {
+			auto mdot  = this->turbine->getOutletMassFlow();
+			auto mdotD = this->turbine->getOutletMassFlowDerivative(p);
+			auto h  = this->turbine->getOutletTotalEnthalpy();
+			auto hD = this->turbine->getOutletTotalEnthalpyDerivative(p);
+			return mdot * hD + mdotD * h;
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
@@ -185,15 +227,13 @@ class TurbineIsentropicProcessConstraint: public Constraint {
 		double getValue() const override {
 			auto tratio = this->turbine->getTRatio();
 			auto Pratio = this->getExpPRatio();
-			return 0;
 			return tratio - Pratio;
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
-			auto tratio = this->turbine->getTRatioDerivative(parameter);
-			auto Pratio = this->getExpPRatioDerivative(parameter);
-			return 0;
-			return tratio - Pratio;
+			auto tratioD = this->turbine->getTRatioDerivative(parameter);
+			auto PratioD = this->getExpPRatioDerivative(parameter);
+			return tratioD - PratioD;
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {

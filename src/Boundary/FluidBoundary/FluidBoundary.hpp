@@ -4,6 +4,7 @@
 #define AIR_GAMMA 1.4
 #define AIR_CP 1000.0
 #define AIR_R ( AIR_CP * (1 - 1 / AIR_GAMMA) )
+#define AIR_CV ( AIR_CP - AIR_R )
 
 class FluidBoundary: public Boundary {
 		std::vector<int> parameterIds;
@@ -23,16 +24,16 @@ class FluidBoundary: public Boundary {
 		{}
 
 		double getVelocity(bool orientation) const {
-			return double(*this->velocity) * (orientation ? 1.0 : -1.0);
+			return this->velocity->getValue() * (orientation ? 1.0 : -1.0);
 		}
 
 
 		double getTemperature() const {
-			return *this->T;
+			return this->T->getValue();
 		}
 
 		double getPressure() const {
-			return *this->P;
+			return this->P->getValue();
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getVelocityParameters() {
@@ -49,21 +50,21 @@ class FluidBoundary: public Boundary {
 
 		double getVelocityDerivative(const Parameter& param, bool orientation) const {
 			if(param.getId() == this->velocity->getId()){
-				return orientation ? 1.0 : -1.0;
+				return this->velocity->getDerivative() * (orientation ? 1.0 : -1.0);
 			}
 			return 0.0;
 		}
 
 		double getPressureDerivative(const Parameter& param) const {
 			if(param.getId() == this->P->getId()){
-				return 1.0;
+				return this->P->getDerivative();
 			}
 			return 0.0;
 		}
 
 		double getTemperatureDerivative(const Parameter& param) const {
 			if (param.getId() == this->T->getId()){
-				return 1.0;
+				return this->T->getDerivative();
 			}
 			return 0.0;
 		}
@@ -79,10 +80,10 @@ class FluidBoundary: public Boundary {
 		}
 
 		double getSpecificThermalInternalEnergy() const {
-			return AIR_CP * this->getTemperature();
+			return AIR_CV * this->getTemperature();
 		}
 		double getSpecificThermalInternalEnergyDerivative(const Parameter& param) const {
-			return AIR_CP * this->getTemperatureDerivative(param);
+			return AIR_CV * this->getTemperatureDerivative(param);
 		}
 
 		double getSpecificTotalInternalEnergy(bool orientation) const {

@@ -51,38 +51,38 @@ class Tank : public Component {
 		}
 
 		double getTRatio() const {
-			return this->Tt/this->getBoundaryTemperature();
+			return this->Tt/this->boundary->getTemperature();
 		}
 
 		double getTRatioDerivative(const Parameter& parameter) const {
 			auto Tt = this->Tt;
-			auto T = this->getBoundaryTemperature();
-			auto dTdParam = this->getBoundaryTemperatureDerivative(parameter);
+			auto T = this->boundary->getTemperature();
+			auto dTdParam = this->boundary->getTemperatureDerivative(parameter);
 			return (- Tt / powf(T,2)) * dTdParam;
 
 		}
 		double getPRatio() const {
-			return this->Pt/this->getBoundaryPressure();
+			return this->Pt/this->boundary->getPressure();
 		}
 
 		double getPRatioDerivative(const Parameter& parameter) const {
 			auto Pt = this->Pt;
-			auto P = this->getBoundaryPressure();
-			auto dPdParam = this->getBoundaryPressureDerivative(parameter);
+			auto P = this->boundary->getPressure();
+			auto dPdParam = this->boundary->getPressureDerivative(parameter);
 			return (- Pt / powf(P,2)) * dPdParam;
 		}
 
 		double getStaticEnthalpy() const {
-			return AIR_CP * this->getBoundaryTemperature();
+			return this->boundary->getSpecificThermalInternalEnergy();
 		}
 		double getStaticEnthalpyDerivative(const Parameter& parameter) const {
-			return AIR_CP * this->getBoundaryTemperatureDerivative(parameter);
+			return this->boundary->getSpecificThermalInternalEnergyDerivative(parameter);
 		}
 
-		double getStagnationInternalEnergy() const {
-			return AIR_CP * this->Tt;
+		double getSpecificThermalInternalEnergy() const {
+			return AIR_CV * this->Tt;
 		}
-		double getStagnationInternalEnergyDerivative([[maybe_unused]] const Parameter& parameter) const {
+		double getSpecificThermalInternalEnergyDerivative([[maybe_unused]] const Parameter& parameter) const {
 			return 0;
 		}
 
@@ -92,67 +92,38 @@ class Tank : public Component {
 		double getSpecificPotentialWorkDerivative(const Parameter& p) const {
 			return 0;
 		}
-		double getStagnationEnthalpy() const {
-			return this->getStagnationInternalEnergy() + this->getSpecificPotentialWork();
+
+		double getSpecificTotalInternalEnergy() const {
+			return this->getSpecificThermalInternalEnergy();
 		}
-		double getStagnationEnthalpyDerivative(const Parameter& p) const {
-			return this->getStagnationInternalEnergyDerivative(p) + this->getSpecificPotentialWorkDerivative(p);
+		double getSpecificTotalInternalEnergyDerivative(const Parameter& p) const {
+			return this->getSpecificThermalInternalEnergyDerivative(p);
+		}
+
+		double getSpecificEnthalpy() const {
+			return this->getSpecificTotalInternalEnergy() + this->getSpecificPotentialWork();
+		}
+		double getSpecificEnthalpyDerivative(const Parameter& p) const {
+			return this->getSpecificTotalInternalEnergyDerivative(p) + this->getSpecificPotentialWorkDerivative(p);
 
 		}
 
-		double getKineticEnergy() const {
+		double getBoundarySpecificKineticEnergy() const {
 			return this->boundary->getSpecificKineticEnergy(this->boundaryDir);
 		}
 
-		double getKineticEnergyDerivative(const Parameter& parameter) const {
+		double getSpecificKineticEnergyDerivative(const Parameter& parameter) const {
 			return this->boundary->getSpecificKineticEnergyDerivative(parameter, this->boundaryDir);
 		}
 
-		double getBoundaryTemperature() const {
-			if(this->boundary == nullptr){
-				return this->Tt;
-			}
-			return this->boundary->getTemperature();
-		}
-
-		double getBoundaryTemperatureDerivative(const Parameter& parameter) const {
-			if(this->boundary == nullptr){
-				return 0.0;
-			}
-			return this->boundary->getTemperatureDerivative(parameter);
-		}
-
-		double getBoundaryPressure() const {
-			if(this->boundary == nullptr){
-				return this->Pt;
-			}
-			return this->boundary->getPressure();
-		}
-
-		double getBoundaryPressureDerivative(const Parameter& parameter) const {
-			if(this->boundary == nullptr){
-				return 0.0;
-			}
-			return this->boundary->getPressureDerivative(parameter);
-		}
-
 		double getBoundaryVelocity() const {
-			if(this->boundary == nullptr){
-				return 0.0;
-			}
 			return this->boundary->getVelocity(this->boundaryDir);
 		}
 
 		double getBoundaryVelocityDerivative(const Parameter& parameter) const {
-			if(this->boundary == nullptr){
-				return 0.0;
-			}
 			return this->boundary->getVelocityDerivative(parameter, this->boundaryDir);
 		}
 
-		bool getFlowDirection() const {
-			return this->getBoundaryVelocity() >= 0;
-		}
 };
 
 class TankEnergyConstraint : public Constraint {
@@ -161,20 +132,18 @@ class TankEnergyConstraint : public Constraint {
 		TankEnergyConstraint(ConstraintId id, Tank* tank): Constraint(id), tank(tank){}
 
 		double getValue() const override {
-			auto stagnationEnthalpy = this->tank->getStagnationEnthalpy();
+			auto tankEnthalpy = this->tank->getSpecificEnthalpy();
 			auto boundaryEnthalpy = this->tank->boundary->getSpecificEnthalpy(this->tank->boundaryDir);
 
-			auto energyDiff = stagnationEnthalpy - boundaryEnthalpy;
-			return energyDiff;
+			return tankEnthalpy - boundaryEnthalpy;
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
 
-			auto stagnationEnthalpyD = this->tank->getStagnationEnthalpyDerivative(parameter);
+			auto tankEnthalpyD = this->tank->getSpecificEnthalpyDerivative(parameter);
 			auto boundaryEnthalpyD = this->tank->boundary->getSpecificEnthalpyDerivative(parameter,this->tank->boundaryDir);
 
-			auto energyDiffD = stagnationEnthalpyD - boundaryEnthalpyD;
-			return energyDiffD;
+			return (tankEnthalpyD - boundaryEnthalpyD) * 1.5;
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
@@ -192,22 +161,12 @@ class TankIsentropicConstraint: public Constraint {
 				auto tratio = this->tank->getTRatio();
 				auto Pratio = this->getExpPRatio();
 				return tratio - Pratio;
-			if(!tank->getFlowDirection()){// Inwards flow
-				// If the flow is inwards, we assume that as long as the flow has enough energy to reach the tank pressure,
-				// any leftover kinetic energy will be dissipated.
-				return 0.0;
-			} else {// Outwards flow
-			}
 		}
 
 		double getValueDerivative(const Parameter& p) const override {
 				auto tratio = this->tank->getTRatioDerivative(p);
 				auto Pratio = this->getExpPRatioDerivative(p);
 				return tratio - Pratio;
-			if(!tank->getFlowDirection()){// Inwards flow
-				return 0.0;
-			} else {// Outwards flow
-			}
 		}
 
 		double getExpPRatio() const {
