@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include "../Boundary.hpp"
 #include "../../Math/Parameter/Parameter.hpp"
 #define AIR_GAMMA 1.4
@@ -12,7 +13,7 @@ class FluidBoundary: public Boundary {
 		std::shared_ptr<Parameter> P;
 		std::shared_ptr<Parameter> T;
 		double section;
-		bool registered[2];// Keeps track if each endpoint is registered
+		std::array<bool, 2> registered;// Keeps track if each endpoint is registered
 	public:
 		FluidBoundary(int id,
 			std::shared_ptr<Parameter> velocity,
@@ -20,7 +21,7 @@ class FluidBoundary: public Boundary {
 			std::shared_ptr<Parameter> T,
 			double section
 		)
-			:Boundary(id), velocity(velocity), P(P), T(T), section(section)
+			:Boundary(id), velocity(velocity), P(P), T(T), section(section), registered({false,false})
 		{}
 
 		double getVelocity(bool orientation) const {

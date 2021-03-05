@@ -4,6 +4,7 @@
 #include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
 #include "../../Math/Constraint/Constraint.hpp"
 
+class TankTemperatureConstraint;
 class TankEnergyConstraint;
 class TankIsentropicConstraint;
 
@@ -11,15 +12,17 @@ class Tank : public Component {
 	friend TankEnergyConstraint;
 	friend TankIsentropicConstraint;
 		double Pt;
-		double Tt;
+		double tankT;
+		std::shared_ptr<Parameter> Tt;
 		std::shared_ptr<FluidBoundary> boundary;
 		bool boundaryDir;
 	public:
-		Tank(ComponentId id,std::vector<ConstraintId> constraintIds, double Pt, double Tt):
-			Component(id), Pt(Pt), Tt(Tt), boundary(nullptr), boundaryDir(false)
+		Tank(ComponentId id,std::array<ConstraintId, 3> constraintIds, double Pt, double tankT, std::shared_ptr<Parameter> Tt):
+			Component(id), Pt(Pt), tankT(tankT), Tt(Tt), boundary(nullptr), boundaryDir(false)
 		{
-			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TankEnergyConstraint>(constraintIds[0],this)));
-			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TankIsentropicConstraint>(constraintIds[1],this)));
+			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TankTemperatureConstraint>(constraintIds[0],this)));
+			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TankEnergyConstraint>(constraintIds[1],this)));
+			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TankIsentropicConstraint>(constraintIds[2],this)));
 		}
 
 		// Returns whether registration was successful
@@ -42,25 +45,44 @@ class Tank : public Component {
 			auto PParams = this->boundary->getPressureParameters();
 
 			std::vector<std::weak_ptr<Parameter>> allParams;
-			allParams.reserve(vParams.size() + TParams.size() + PParams.size());
+			allParams.reserve(vParams.size() + TParams.size() + PParams.size() + 1);
 
 			allParams.insert(allParams.end(), vParams.begin(), vParams.end());
 			allParams.insert(allParams.end(), TParams.begin(), TParams.end());
 			allParams.insert(allParams.end(), PParams.begin(), PParams.end());
+
+			allParams.push_back(this->Tt);
 			return allParams;
 		}
 
+
+		double getStagnationTemperature() const {
+			return this->Tt->getValue();
+		}
+		double getStagnationTemperatureDerivative(const Parameter& p) const {
+			if (this->Tt->getId() == p.getId()){
+				return this->Tt->getDerivative();
+			}
+			return 0.0;
+		}
+
+		double getTankTemperature() const {
+			return this->tankT;
+		}
+
 		double getTRatio() const {
-			return this->Tt/this->boundary->getTemperature();
+			return this->Tt->getValue()/this->boundary->getTemperature();
 		}
-
 		double getTRatioDerivative(const Parameter& parameter) const {
-			auto Tt = this->Tt;
-			auto T = this->boundary->getTemperature();
-			auto dTdParam = this->boundary->getTemperatureDerivative(parameter);
-			return (- Tt / powf(T,2)) * dTdParam;
+			auto Tt = this->getStagnationTemperature();
+			auto dTtdP = this->getStagnationTemperatureDerivative(parameter);
 
+			auto T = this->boundary->getTemperature();
+			auto dTdP = this->boundary->getTemperatureDerivative(parameter);
+
+			return (T * dTtdP - dTdP * Tt) / powf(T, 2);
 		}
+
 		double getPRatio() const {
 			return this->Pt/this->boundary->getPressure();
 		}
@@ -80,17 +102,23 @@ class Tank : public Component {
 		}
 
 		double getSpecificThermalInternalEnergy() const {
-			return AIR_CV * this->Tt;
+			return AIR_CV * this->Tt->getValue();
 		}
 		double getSpecificThermalInternalEnergyDerivative([[maybe_unused]] const Parameter& parameter) const {
-			return 0;
+			if(this->Tt->getId() == parameter.getId()){
+				return AIR_CV * this->Tt->getDerivative();
+			}
+			return 0.0;
 		}
 
 		double getSpecificPotentialWork() const {
-			return AIR_R * this->Tt;
+			return AIR_R * this->Tt->getValue();
 		}
 		double getSpecificPotentialWorkDerivative(const Parameter& p) const {
-			return 0;
+			if(this->Tt->getId() == p.getId()){
+				return AIR_R * this->Tt->getDerivative();
+			}
+			return 0.0;
 		}
 
 		double getSpecificTotalInternalEnergy() const {
@@ -126,6 +154,31 @@ class Tank : public Component {
 
 };
 
+class TankTemperatureConstraint : public Constraint {
+		Tank* tank;
+	public:
+		TankTemperatureConstraint(ConstraintId id, Tank* tank): Constraint(id), tank(tank){}
+
+		double getValue() const override {
+			if(this->tank->getBoundaryVelocity() > 0.0){
+				return 0.0;
+			}
+			return this->tank->getStagnationTemperature() - this->tank->getTankTemperature();
+		}
+
+		double getValueDerivative(const Parameter& p) const override {
+			if(this->tank->getBoundaryVelocity() > 0.0){
+				return 0.0;
+			}
+			return this->tank->getStagnationTemperatureDerivative(p);
+		}
+
+		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
+			return this->tank->getDependentParameters();
+		}
+		
+};
+
 class TankEnergyConstraint : public Constraint {
 		Tank* tank; // Constraint is owned by Tank, lifetime is guaranteed
 	public:
@@ -143,7 +196,7 @@ class TankEnergyConstraint : public Constraint {
 			auto tankEnthalpyD = this->tank->getSpecificEnthalpyDerivative(parameter);
 			auto boundaryEnthalpyD = this->tank->boundary->getSpecificEnthalpyDerivative(parameter,this->tank->boundaryDir);
 
-			return (tankEnthalpyD - boundaryEnthalpyD) * 1.5;
+			return tankEnthalpyD - boundaryEnthalpyD;
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
@@ -158,15 +211,15 @@ class TankIsentropicConstraint: public Constraint {
 			:Constraint(id), tank(tank){}
 
 		double getValue() const override {
-				auto tratio = this->tank->getTRatio();
-				auto Pratio = this->getExpPRatio();
-				return tratio - Pratio;
+			auto tratio = this->tank->getTRatio();
+			auto Pratio = this->getExpPRatio();
+			return tratio - Pratio;
 		}
 
 		double getValueDerivative(const Parameter& p) const override {
-				auto tratio = this->tank->getTRatioDerivative(p);
-				auto Pratio = this->getExpPRatioDerivative(p);
-				return tratio - Pratio;
+			auto tratio = this->tank->getTRatioDerivative(p);
+			auto Pratio = this->getExpPRatioDerivative(p);
+			return tratio - Pratio;
 		}
 
 		double getExpPRatio() const {

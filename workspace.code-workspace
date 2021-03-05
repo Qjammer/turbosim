@@ -24,7 +24,8 @@
 			"ctime": "cpp",
 			"cwchar": "cpp",
 			"cwctype": "cpp",
-			"vector": "cpp"
+			"vector": "cpp",
+			"core": "cpp"
 		}
 	}
 }

@@ -3,20 +3,28 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <iostream>
+#include "Math/Parameter/ParameterRegister.hpp"
+#include "Math/Constraint/ConstraintRegister.hpp"
 
 class NewtonMethod {
-		double lbase = 0.1;
-		double l = 1.0;
 		JacobianCalculator jacobianCalculator;
+		std::shared_ptr<ParameterRegister> parameterRegister;
+		std::shared_ptr<ConstraintRegister> constraintRegister;
 	public:
-		NewtonMethod(JacobianCalculator jacobianCalculator)
+		NewtonMethod(
+			JacobianCalculator jacobianCalculator,
+			std::shared_ptr<ParameterRegister> parameterRegister,
+			std::shared_ptr<ConstraintRegister> constraintRegister
+		)
 			:jacobianCalculator(jacobianCalculator)
+			,parameterRegister(parameterRegister)
+			,constraintRegister(constraintRegister)
 		{
 		}
 
-		void gradientDescentTick(std::map<ParameterId, std::weak_ptr<Parameter>>& parameters, const std::vector<std::weak_ptr<Constraint>>& constraints) {
-			const auto constraintValues = this->jacobianCalculator.getConstraintValues(constraints);
-			Eigen::SparseMatrix<double> constraintJacobian = this->jacobianCalculator.getJacobian(constraints);
+		void iterate(){
+			const auto constraintValues = this->jacobianCalculator.getConstraintValues(this->constraintRegister->getAllConstraints());
+			Eigen::SparseMatrix<double> constraintJacobian = this->jacobianCalculator.getJacobian(this->constraintRegister->getAllConstraints());
 			Eigen::MatrixXd denseJacobian = constraintJacobian.toDense();
 			Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<Eigen::SparseMatrix<double>::StorageIndex>> solver;
 			solver.setPivotThreshold(1.0e-10);
@@ -37,10 +45,10 @@ class NewtonMethod {
 			std::cout<<"PD\n"<<Eigen::MatrixXd(parameterDeltas)<<'\n';
 			std::cout<<"PD2\n"<<Eigen::MatrixXd(parameterDeltas2)<<'\n';
 
-			const auto parameterValues = this->getParameterValues(parameters);
+			const auto parameterValues = this->getParameterValues(this->parameterRegister->getParameterMap());
 			//const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas);
 			const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas2);
-			this->updateParams(parameters, updatedParameterValues);
+			this->updateParams(this->parameterRegister->getParameterMap(), updatedParameterValues);
 		}
 
 		void updateParams(std::map<ParameterId, std::weak_ptr<Parameter>>& parameters, const std::map<ParameterId, double>& newVals) const

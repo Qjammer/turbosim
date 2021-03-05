@@ -6,13 +6,13 @@ class AxialBoundary: public Boundary {
 		std::vector<int> parameterIds;
 		std::shared_ptr<Parameter> velocity;
 		std::shared_ptr<Parameter> power;
-		bool registered[2];// Keeps track if each endpoint is registered
+		std::array<bool, 2> registered;// Keeps track if each endpoint is registered
 	public:
 		AxialBoundary(int id,
 			std::shared_ptr<Parameter> velocity,
 			std::shared_ptr<Parameter> power
 		)
-			:Boundary(id), velocity(velocity), power(power)
+			:Boundary(id), velocity(velocity), power(power), registered({false, false})
 		{}
 
 		double getVelocity(bool orientation) const {

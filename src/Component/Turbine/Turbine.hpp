@@ -19,7 +19,7 @@ class Turbine : public Component {
 		bool fwdAxleDir;
 	public:
 		Turbine(
-			ComponentId id, std::vector<ConstraintId> constraintIds
+			ComponentId id, std::array<ConstraintId, 3> constraintIds
 		): Component(id)
 		{
 			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineMassConstraint>(constraintIds[0], this)));

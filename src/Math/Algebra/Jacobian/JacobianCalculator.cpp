@@ -1,7 +1,7 @@
 #include "./JacobianCalculator.hpp"
 #include <math.h>
 
-Eigen::SparseMatrix<double> JacobianCalculator::getJacobian(const std::vector<std::weak_ptr<Constraint>>& constraints) const
+Eigen::SparseMatrix<double> JacobianCalculator::getJacobian(const std::map<ConstraintId, std::weak_ptr<Constraint>>& constraints) const
 {
 	std::map<ConstraintId, std::map<ParameterId, double>> jacobian;
 	std::vector<Eigen::Triplet<double>> triplets;
@@ -9,7 +9,7 @@ Eigen::SparseMatrix<double> JacobianCalculator::getJacobian(const std::vector<st
 	ParameterId maxParameterId = 0;
 	for(const auto& constraint: constraints)
 	{
-		if(auto lc = constraint.lock()){
+		if(auto lc = constraint.second.lock()){
 			const auto constraintId = lc->getId();
 			if(constraintId > maxConstraintId) {
 				maxConstraintId = constraintId;
@@ -43,14 +43,14 @@ std::map<ParameterId, double> JacobianCalculator::getConstraintGradient(const st
 	return gradient;
 }
 
-Eigen::VectorXd JacobianCalculator::getConstraintValues(const std::vector<std::weak_ptr<Constraint>>& constraints) const
+Eigen::VectorXd JacobianCalculator::getConstraintValues(const std::map<ConstraintId, std::weak_ptr<Constraint>>& constraints) const
 {
 	std::map<int, double> constraintValues;
 	std::vector<Eigen::Triplet<double>> triplets;
 	ConstraintId maxConstraintId = 0;
 	for(const auto& constraint: constraints)
 	{
-		if(auto lc = constraint.lock()){
+		if(auto lc = constraint.second.lock()){
 			const auto constraintId = lc->getId();
 			if(constraintId > maxConstraintId){
 				maxConstraintId = constraintId;
