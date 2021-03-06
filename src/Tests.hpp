@@ -2,21 +2,16 @@
 #include "Kernel.hpp"
 
 
-void test_tank_equalizes_outwards_flow(){
+void test_tank_converges_outwards_flow(){
 	std::cout<<__FUNCTION__<<std::endl;
 	auto app = Kernel().build();
 
-	auto tank = app->getTankFactory()->build(1,8.9e5,873);
-	auto fluidBoundary = app->getFluidBoundaryFactory()->build(1, -10.0, 8.8e5, 872.95, 1.0);
+	auto tank = app->getTankFactory()->build(1, 9.0e5, 873);
+	auto fluidBoundary = app->getFluidBoundaryFactory()->build(1, -10.0, 9.0e5, 873, 1.0);
 
 	tank->registerFluidBoundary(fluidBoundary);
 
 	for(int i = 0; i < 10; ++i){
-		std::cout<<"it: "<<i<<'\n';
-		std::cout<<"\tParameters:\n";
-		app->getParameterRegister()->printParameterTable();
-		std::cout<<"\tConstraints:\n";
-		app->getConstraintRegister()->printConstraintTable();
 		app->getNewtonMethod()->iterate();
 	}
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
@@ -24,21 +19,16 @@ void test_tank_equalizes_outwards_flow(){
 	assert(fluidBoundary->getVelocity(true) < 0.0);
 }
 
-void test_tank_equalizes_inwards_flow(){
+void test_tank_converges_inwards_flow(){
 	std::cout<<__FUNCTION__<<std::endl;
 	auto app = Kernel().build();
 
-	auto tank = app->getTankFactory()->build(1,8.9e5,873);
-	auto fluidBoundary = app->getFluidBoundaryFactory()->build(1, 75.0, 8.7e5, 270, 1.0);
+	auto tank = app->getTankFactory()->build(1,9.0e5,873);
+	auto fluidBoundary = app->getFluidBoundaryFactory()->build(1, 75.0, 9.0e5, 270, 1.0);
 
 	tank->registerFluidBoundary(fluidBoundary);
 
 	for(int i = 0; i < 10; ++i){
-		std::cout<<"it: "<<i<<'\n';
-		std::cout<<"\tParameters:\n";
-		app->getParameterRegister()->printParameterTable();
-		std::cout<<"\tConstraints:\n";
-		app->getConstraintRegister()->printConstraintTable();
 		app->getNewtonMethod()->iterate();
 	}
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
@@ -46,7 +36,99 @@ void test_tank_equalizes_inwards_flow(){
 	assert(fluidBoundary->getVelocity(true) > 0.0);
 }
 
+void test_turbine_converges() {
+	std::cout<<__FUNCTION__<<std::endl;
+	auto app = Kernel().build();
+
+	auto fluidBoundaryHP = app->getFluidBoundaryFactory()->build(1, 10.0, 9.0e5, 873, 1.0);
+	auto fluidBoundaryLP = app->getFluidBoundaryFactory()->build(2, -10.0, 9.0e5, 270, 5.0);
+	auto axialBoundary = app->getAxialBoundaryFactory()->build(3,-1.4e7, 0.0);
+
+	auto turbine = app->getTurbineFactory()->build(1);
+
+	turbine->registerFluidBoundary(fluidBoundaryHP, 0);
+	turbine->registerFluidBoundary(fluidBoundaryLP, 1);
+	turbine->registerAxialBoundary(axialBoundary, 0);
+
+	for(int i = 0; i < 10; ++i){
+		app->getNewtonMethod()->iterate();
+	}
+	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
+	assert(constraintNorm < 0.1);
+}
+
+void test_turbine_with_tanks_converges() {
+	std::cout<<__FUNCTION__<<std::endl;
+	auto app = Kernel().build();
+
+	auto fluidBoundaryHP = app->getFluidBoundaryFactory()->build(1, -10.0, 9.0e5, 873, 1.0);
+	auto fluidBoundaryLP = app->getFluidBoundaryFactory()->build(2,  10.0, 1.01e5, 370, 5.0);
+	auto axialBoundary = app->getAxialBoundaryFactory()->build(3,-1.4e7, 0.0);
+
+	auto tankHP = app->getTankFactory()->build(1, 9.0e5, 873);
+	auto tankLP = app->getTankFactory()->build(2, 1.01e5, 273);
+	auto turbine = app->getTurbineFactory()->build(3);
+
+	tankHP->registerFluidBoundary(fluidBoundaryHP);
+	tankLP->registerFluidBoundary(fluidBoundaryLP);
+
+	turbine->registerFluidBoundary(fluidBoundaryHP, 0);
+	turbine->registerFluidBoundary(fluidBoundaryLP, 1);
+	turbine->registerAxialBoundary(axialBoundary, 0);
+
+	for(int i = 0; i < 10; ++i){
+		app->getNewtonMethod()->iterate();
+	}
+	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
+	assert(constraintNorm < 0.1);
+
+}
+
+void test_4_tanks_2_turbines_converges() {
+	std::cout<<__FUNCTION__<<std::endl;
+	auto app = Kernel().build();
+
+	// BOUNDARY INSTANTIATION
+	auto fluidBoundary1_H = app->getFluidBoundaryFactory()->build(1, -10.0, 9.00e5, 873, 1.0);
+	auto fluidBoundary1_L = app->getFluidBoundaryFactory()->build(2,  10.0, 1.01e5, 380, 5.0);
+	auto fluidBoundary2_H = app->getFluidBoundaryFactory()->build(3, 10.0, 9.00e5, 873, 1.0);
+	auto fluidBoundary2_L = app->getFluidBoundaryFactory()->build(4,  -10.0, 1.01e5, 380, 5.0);
+	auto axialBoundary = app->getAxialBoundaryFactory()->build(5,-1.4e7, 0.0);
+
+	// COMPONENT INSTANTIATION
+	auto tank1_H = app->getTankFactory()->build(1, 9.0e5, 873);
+	auto tank1_L = app->getTankFactory()->build(2, 1.01e5, 273);
+	auto turbine1 = app->getTurbineFactory()->build(5);
+
+	auto tank2_H = app->getTankFactory()->build(3, 9.0e5, 873);
+	auto tank2_L = app->getTankFactory()->build(4, 1.01e5, 273);
+	auto turbine2 = app->getTurbineFactory()->build(6);
+
+	// COMPONENT WIRING
+	tank1_H->registerFluidBoundary(fluidBoundary1_H);
+	tank1_L->registerFluidBoundary(fluidBoundary1_L);
+	tank2_H->registerFluidBoundary(fluidBoundary2_H);
+	tank2_L->registerFluidBoundary(fluidBoundary2_L);
+
+	turbine1->registerFluidBoundary(fluidBoundary1_H, 0);
+	turbine1->registerFluidBoundary(fluidBoundary1_L, 1);
+	turbine1->registerAxialBoundary(axialBoundary, 0);
+
+	turbine2->registerFluidBoundary(fluidBoundary2_H, 0);
+	turbine2->registerFluidBoundary(fluidBoundary2_L, 1);
+	turbine2->registerAxialBoundary(axialBoundary, 0);
+
+	for(int i = 0; i < 10; ++i){
+		app->getNewtonMethod()->iterate();
+	}
+	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
+	assert(constraintNorm < 0.1);
+}
+
 void tests(){
-	test_tank_equalizes_outwards_flow();
-	test_tank_equalizes_inwards_flow();
+	test_tank_converges_outwards_flow();
+	test_tank_converges_inwards_flow();
+	test_turbine_converges();
+	test_turbine_with_tanks_converges();
+	test_4_tanks_2_turbines_converges();
 }
