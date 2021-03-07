@@ -180,7 +180,6 @@ class TurbineEnergyConstraint: public Constraint {
 				 + this->turbine->getAxialPower();
 
 		}
-
 		double getValueDerivative(const Parameter& parameter) const override {
 			return this->getInletEnergyDerivative(parameter)
 				 + this->getOutletEnergyDerivative(parameter)
@@ -252,6 +251,5 @@ class TurbineIsentropicProcessConstraint: public Constraint {
 			double dPRatiodParam = this->turbine->getPRatioDerivative(p);
 			return exp * powf(PRatio, exp - 1) * dPRatiodParam;
 		}
-
 
 };

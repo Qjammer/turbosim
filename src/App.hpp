@@ -9,6 +9,7 @@
 #include "Boundary/AxialBoundary/AxialBoundaryFactory.hpp"
 #include "Component/Tank/TankFactory.hpp"
 #include "Component/Turbine/TurbineFactory.hpp"
+#include "Component/Combustor/CombustorFactory.hpp"
 
 class App {
 		std::shared_ptr<ParameterRegister> parameterRegister;
@@ -16,6 +17,7 @@ class App {
 		std::shared_ptr<NewtonMethod> newtonMethod;
 		std::shared_ptr<TurbineFactory> turbineFactory;
 		std::shared_ptr<TankFactory> tankFactory;
+		std::shared_ptr<CombustorFactory> combustorFactory;
 		std::shared_ptr<FluidBoundaryFactory> fluidBoundaryFactory;
 		std::shared_ptr<AxialBoundaryFactory> axialBoundaryFactory;
 	public:
@@ -25,6 +27,7 @@ class App {
 			std::shared_ptr<NewtonMethod> newtonMethod,
 			std::shared_ptr<TurbineFactory> turbineFactory,
 			std::shared_ptr<TankFactory> tankFactory,
+			std::shared_ptr<CombustorFactory> combustorFactory,
 			std::shared_ptr<FluidBoundaryFactory> fluidBoundaryFactory,
 			std::shared_ptr<AxialBoundaryFactory> axialBoundaryFactory
 		)
@@ -33,6 +36,7 @@ class App {
 			, newtonMethod(newtonMethod)
 			, turbineFactory(turbineFactory)
 			, tankFactory(tankFactory)
+			, combustorFactory(combustorFactory)
 			, fluidBoundaryFactory(fluidBoundaryFactory)
 			, axialBoundaryFactory(axialBoundaryFactory)
 		{}
@@ -56,6 +60,11 @@ class App {
 		std::shared_ptr<TankFactory> getTankFactory() {
 			return this->tankFactory;
 		}
+
+		std::shared_ptr<CombustorFactory> getCombustorFactory() {
+			return this->combustorFactory;
+		}
+
 
 		std::shared_ptr<FluidBoundaryFactory> getFluidBoundaryFactory() {
 			return this->fluidBoundaryFactory;

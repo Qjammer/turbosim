@@ -160,14 +160,14 @@ class TankTemperatureConstraint : public Constraint {
 		TankTemperatureConstraint(ConstraintId id, Tank* tank): Constraint(id), tank(tank){}
 
 		double getValue() const override {
-			if(this->tank->getBoundaryVelocity() > 0.0){
+			if(this->tank->getBoundaryVelocity() < 0.0){
 				return 0.0;
 			}
 			return this->tank->getStagnationTemperature() - this->tank->getTankTemperature();
 		}
 
 		double getValueDerivative(const Parameter& p) const override {
-			if(this->tank->getBoundaryVelocity() > 0.0){
+			if(this->tank->getBoundaryVelocity() < 0.0){
 				return 0.0;
 			}
 			return this->tank->getStagnationTemperatureDerivative(p);
@@ -192,7 +192,6 @@ class TankEnergyConstraint : public Constraint {
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
-
 			auto tankEnthalpyD = this->tank->getSpecificEnthalpyDerivative(parameter);
 			auto boundaryEnthalpyD = this->tank->boundary->getSpecificEnthalpyDerivative(parameter,this->tank->boundaryDir);
 

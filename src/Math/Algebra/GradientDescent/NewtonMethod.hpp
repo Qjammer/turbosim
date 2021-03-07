@@ -41,9 +41,11 @@ class NewtonMethod {
 				return;
 			}
 
+			/*
 			std::cout<<"SJ\n"<<Eigen::MatrixXd(constraintJacobian)<<'\n';
 			std::cout<<"PD\n"<<Eigen::MatrixXd(parameterDeltas)<<'\n';
 			std::cout<<"PD2\n"<<Eigen::MatrixXd(parameterDeltas2)<<'\n';
+			*/
 
 			const auto parameterValues = this->getParameterValues(this->parameterRegister->getParameterMap());
 			//const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas);

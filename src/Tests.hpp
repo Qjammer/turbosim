@@ -17,6 +17,7 @@ void test_tank_converges_outwards_flow(){
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
 	assert(constraintNorm < 0.1);
 	assert(fluidBoundary->getVelocity(true) < 0.0);
+	std::cout<<"PASSED"<<std::endl;
 }
 
 void test_tank_converges_inwards_flow(){
@@ -34,6 +35,7 @@ void test_tank_converges_inwards_flow(){
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
 	assert(constraintNorm < 0.1);
 	assert(fluidBoundary->getVelocity(true) > 0.0);
+	std::cout<<"PASSED"<<std::endl;
 }
 
 void test_turbine_converges() {
@@ -55,6 +57,7 @@ void test_turbine_converges() {
 	}
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
 	assert(constraintNorm < 0.1);
+	std::cout<<"PASSED"<<std::endl;
 }
 
 void test_turbine_with_tanks_converges() {
@@ -81,7 +84,7 @@ void test_turbine_with_tanks_converges() {
 	}
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
 	assert(constraintNorm < 0.1);
-
+	std::cout<<"PASSED"<<std::endl;
 }
 
 void test_4_tanks_2_turbines_converges() {
@@ -123,6 +126,31 @@ void test_4_tanks_2_turbines_converges() {
 	}
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
 	assert(constraintNorm < 0.1);
+	std::cout<<"PASSED"<<std::endl;
+}
+
+void test_combustor_converges() {
+	std::cout<<__FUNCTION__<<std::endl;
+	auto app = Kernel().build();
+
+	// BOUNDARY INSTANTIATION
+	auto fluidBoundary_C = app->getFluidBoundaryFactory()->build(1, -10.0, 9.00e5, 373, 1.0);
+	auto fluidBoundary_H = app->getFluidBoundaryFactory()->build(2,  10.0, 9.00e5, 573, 1.0);
+
+	app->getParameterRegister()->get(1).lock()->enable(false);
+	// COMPONENT INSTANTIATION
+	auto combustor = app->getCombustorFactory()->build(1, 1.0);
+
+	// COMPONENT WIRING
+	combustor->registerFluidBoundary(fluidBoundary_C, 0);
+	combustor->registerFluidBoundary(fluidBoundary_H, 1);
+
+	for(int i = 0; i < 10; ++i){
+		app->getNewtonMethod()->iterate();
+	}
+	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
+	assert(constraintNorm < 0.1);
+	std::cout<<"PASSED"<<std::endl;
 }
 
 void tests(){
@@ -131,4 +159,5 @@ void tests(){
 	test_turbine_converges();
 	test_turbine_with_tanks_converges();
 	test_4_tanks_2_turbines_converges();
+	test_combustor_converges();
 }
