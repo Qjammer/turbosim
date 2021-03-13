@@ -1,11 +1,14 @@
 #pragma once
 #include <array>
+#include <math.h>
 #include "../Boundary.hpp"
 #include "../../Math/Parameter/Parameter.hpp"
 #define AIR_GAMMA 1.4
 #define AIR_CP 1000.0
 #define AIR_R ( AIR_CP * (1 - 1 / AIR_GAMMA) )
 #define AIR_CV ( AIR_CP - AIR_R )
+#define AMBIENT_P 101.3e3
+#define AMBIENT_T 289
 
 class FluidBoundary: public Boundary {
 		std::vector<int> parameterIds;
@@ -137,6 +140,30 @@ class FluidBoundary: public Boundary {
 
 			return num * ddenomdx + dnumdx * denom;
 		}
+
+		double getTheta() const {
+			return this->getTemperature() / AMBIENT_T;
+		}
+		double getThetaDerivative(const Parameter& p) const {
+			return this->getTemperatureDerivative(p) / AMBIENT_T;
+		}
+
+		double getDelta() const {
+			return this->getPressure() / AMBIENT_P;
+		}
+		double getDeltaDerivative(const Parameter& p) const {
+			return this->getPressureDerivative(p) / AMBIENT_P;
+		}
+
+		double getCorrectedMassFlow(bool orientation) const {
+			auto m = this->getMassFlow(orientation);
+			auto theta = this->getTheta();
+			auto delta = this->getDelta();
+
+			return m * sqrt(theta) / delta;
+		}
+
+		//TODO: Derivative
 
 		double getSection() const {
 			return this->section;
