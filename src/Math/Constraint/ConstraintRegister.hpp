@@ -44,6 +44,7 @@ class ConstraintRegister {
 				const auto& lc = constraintp.second.lock();
 				std::cout<<'\t'<<lc->getId()<<'\t'<<lc->getValue()<<'\n';
 			}
+			std::cout<<'\t'<<"Norm:"<<'\t'<<this->getConstraintVectorNorm()<<'\n';
 		}
 
 		double getConstraintVectorNorm() const {
