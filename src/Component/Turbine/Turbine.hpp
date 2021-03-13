@@ -7,6 +7,8 @@
 class TurbineIsentropicProcessConstraint;
 class TurbineEnergyConstraint;
 class TurbineMassConstraint;
+class PerformanceMap;
+class FluidBoundary;
 
 class Turbine : public Component {
 	friend TurbineEnergyConstraint;
@@ -17,137 +19,45 @@ class Turbine : public Component {
 
 		std::shared_ptr<AxialBoundary> fwdAxle;
 		bool fwdAxleDir;
+
+		std::unique_ptr<PerformanceMap> performanceMap;
 	public:
 		Turbine(
-			ComponentId id, std::array<ConstraintId, 3> constraintIds
-		): Component(id)
-		{
-			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineMassConstraint>(constraintIds[0], this)));
-			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineEnergyConstraint>(constraintIds[1], this)));
-			this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineIsentropicProcessConstraint>(constraintIds[2], this)));
-		}
+			ComponentId id,
+			std::array<ConstraintId, 3> constraintIds,
+			std::unique_ptr<PerformanceMap> performanceMap
+		);
 
-		bool registerFluidBoundary(std::shared_ptr<FluidBoundary> boundary, int localBoundary){
-			auto registerPair = boundary->registerEndpoint();
-			if(!std::get<0>(registerPair))
-				return false;
+		bool registerFluidBoundary(std::shared_ptr<FluidBoundary> boundary, int localBoundary);
 
-			if(localBoundary == 0){
-				this->inlet = boundary;
-				this->inletDir = std::get<1>(registerPair);
-			} else {
-				this->outlet = boundary;
-				this->outletDir = std::get<1>(registerPair);
-			}
-			return true;
-		}
+		bool registerAxialBoundary(std::shared_ptr<AxialBoundary> boundary, int localBoundary);
 
-		bool registerAxialBoundary(std::shared_ptr<AxialBoundary> boundary, int localBoundary){
-			auto registerPair = boundary->registerEndpoint();
-			if(!std::get<0>(registerPair)){
-				return false;
-			}
-			if(localBoundary == 0){
-				this->fwdAxle = boundary;
-				this->fwdAxleDir = std::get<1>(registerPair);
-			}
-		}
+		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const;
+
+		double getTRatio() const;
+		double getTRatioDerivative(const Parameter& parameter) const;
+
+		double getPRatio() const;
+		double getPRatioDerivative(const Parameter& parameter) const;
+
+		double getInletMassFlow() const;
+		double getInletMassFlowDerivative(const Parameter& p) const;
+
+		double getOutletMassFlow() const;
+		double getOutletMassFlowDerivative(const Parameter& p) const;
 
 
-		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const{
-			std::vector<std::weak_ptr<Parameter>> allParams;
-			if(this->inlet != nullptr){
-				auto vParams = this->inlet->getVelocityParameters();
-				auto TParams = this->inlet->getTemperatureParameters();
-				auto PParams = this->inlet->getPressureParameters();
-				allParams.insert(allParams.end(), vParams.begin(), vParams.end());
-				allParams.insert(allParams.end(), TParams.begin(), TParams.end());
-				allParams.insert(allParams.end(), PParams.begin(), PParams.end());
-			}
+		double getInletTotalEnthalpy() const;
+		double getInletTotalEnthalpyDerivative(const Parameter& p) const;
 
-			if(this->outlet != nullptr){
-				auto vParams = this->outlet->getVelocityParameters();
-				auto TParams = this->outlet->getTemperatureParameters();
-				auto PParams = this->outlet->getPressureParameters();
-				allParams.insert(allParams.end(), vParams.begin(), vParams.end());
-				allParams.insert(allParams.end(), TParams.begin(), TParams.end());
-				allParams.insert(allParams.end(), PParams.begin(), PParams.end());
-			}
+		double getOutletTotalEnthalpy() const;
+		double getOutletTotalEnthalpyDerivative(const Parameter& p) const;
 
-			if(this->fwdAxle != nullptr){
-				auto wParams = this->fwdAxle->getVelocityParameters();
-				auto PParams = this->fwdAxle->getPowerParameters();
-				allParams.insert(allParams.end(), wParams.begin(), wParams.end());
-				allParams.insert(allParams.end(), PParams.begin(), PParams.end());
-			}
-
-			return allParams;
-		}
-
-		double getTRatio() const {
-			return this->outlet->getTemperature()/this->inlet->getTemperature();
-		}
-
-		double getTRatioDerivative(const Parameter& parameter) const {
-			auto Ti = this->inlet->getTemperature();
-			auto To = this->outlet->getTemperature();
-			auto dTidx = this->inlet->getTemperatureDerivative(parameter);
-			auto dTodx = this->outlet->getTemperatureDerivative(parameter);
-
-			return (dTodx * Ti - To * dTidx) / (Ti * Ti);
-		}
-
-		double getPRatio() const {
-			return this->outlet->getPressure()/this->inlet->getPressure();
-		}
-
-		double getPRatioDerivative(const Parameter& parameter) const {
-			auto Pi = this->inlet->getPressure();
-			auto Po = this->outlet->getPressure();
-			auto dPidx = this->inlet->getPressureDerivative(parameter);
-			auto dPodx = this->outlet->getPressureDerivative(parameter);
-			return (dPodx * Pi - Po * dPidx ) / (Pi * Pi);
-		}
-
-		double getInletMassFlow() const {
-			return this->inlet->getMassFlow(this->inletDir);
-		}
-
-		double getOutletMassFlow() const {
-			return this->outlet->getMassFlow(this->outletDir);
-		}
-
-		double getInletMassFlowDerivative(const Parameter& p) const {
-			return this->inlet->getMassFlowDerivative(p, this->inletDir);
-		}
-
-		double getOutletMassFlowDerivative(const Parameter& p) const {
-			return this->outlet->getMassFlowDerivative(p, this->outletDir);
-		}
-		
-		double getInletTotalEnthalpy() {
-			return this->inlet->getSpecificEnthalpy(this->inletDir);
-		}
-		double getInletTotalEnthalpyDerivative(const Parameter& p) {
-			return this->inlet->getSpecificEnthalpyDerivative(p, this->inletDir);
-		}
-
-		double getOutletTotalEnthalpy() {
-			return this->outlet->getSpecificEnthalpy(this->outletDir);
-		}
-		double getOutletTotalEnthalpyDerivative(const Parameter& p) {
-			return this->outlet->getSpecificEnthalpyDerivative(p, this->outletDir);
-		}
-
-		double getAxialPower() {
-			return this->fwdAxle->getPower(this->fwdAxleDir);
-		}
-
-		double getAxialPowerDerivative(const Parameter& p) {
-			return this->fwdAxle->getPowerDerivative(p,this->fwdAxleDir);
-		}
+		double getAxialPower() const;
+		double getAxialPowerDerivative(const Parameter& p) const;
 };
 
+#include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
 class TurbineMassConstraint : public Constraint {
 	Turbine* turbine;
 	public:
