@@ -2,7 +2,7 @@
 #include "../../Math/Parameter/ParameterRegister.hpp"
 #include "../../Math/Constraint/ConstraintRegister.hpp"
 #include "Turbine.hpp"
-#include "PerformanceMap.hpp"
+#include "FilePerformanceMap.hpp"
 
 class TurbineFactory
 {
@@ -19,7 +19,7 @@ class TurbineFactory
 		std::shared_ptr<Turbine> build(
 			ComponentId id
 		) {
-			auto performanceMap = std::make_unique<PerformanceMap>();
+			auto performanceMap = std::make_unique<FilePerformanceMap>("test.csv");
 			auto turbine = std::make_shared<Turbine>(id, this->constraintRegister->getNextIds<3>(), std::move(performanceMap));
 			this->constraintRegister->registerComponent(*turbine);
 			return turbine;

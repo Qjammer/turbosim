@@ -1,25 +1,14 @@
 #pragma once
 
-#include "Turbine.hpp"
+class Turbine;
+class Parameter;
 
 class PerformanceMap
 {
 	public:
-		PerformanceMap()
-		{}
+		virtual double getEfficiency(const Turbine& turbine) const = 0;
+		virtual double getEfficiencyDerivative(const Turbine& turbine, const Parameter& p) const = 0;
 
-	double getEfficiency(const Turbine& turbine) const {
-		return 1.0;
-	}
-	double getEfficiencyDerivative(const Turbine& turbine, const Parameter& p) const {
-		return 0.0;
-	}
-
-	double getPressureRatio(const Turbine& turbine) const {
-		return 10.0;
-	}
-	double getPressureRatioDerivative(const Turbine& turbine, const Parameter& p) const {
-		return 0.0;
-	}
-
+		virtual double getPressureRatio(const Turbine& turbine) const = 0;
+		virtual double getPressureRatioDerivative(const Turbine& turbine, const Parameter& p) const = 0;
 };
