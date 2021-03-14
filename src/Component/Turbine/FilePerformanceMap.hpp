@@ -1,12 +1,15 @@
 #pragma once
 #include <string>
+#include <map>
 #include "PerformanceMap.hpp"
 
 class FilePerformanceMap: public PerformanceMap {
-	std::string filename;
+		void parseFile(std::ifstream& file, std::map<double, std::map<double, double>>& map);
+		std::map<double, std::map<double, double>> efficiencyValues;
+		void insertPoint(std::map<double, std::map<double, double>>& map, double x, double y, double v);
 	public:
 		FilePerformanceMap(
-			std::string_view filename
+			std::string filename_efficiency, std::string filename_pi
 		);
 
 		virtual double getEfficiency(const Turbine& turbine) const override;

@@ -9,8 +9,10 @@ class TurbineEnergyConstraint;
 class TurbineMassConstraint;
 class PerformanceMap;
 class FluidBoundary;
+class TurbineFactory;
 
 class Turbine : public Component {
+	friend TurbineFactory;
 	friend TurbineEnergyConstraint;
 		std::shared_ptr<FluidBoundary> inlet;
 		bool inletDir;
