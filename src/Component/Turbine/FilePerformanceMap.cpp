@@ -2,9 +2,11 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include "Turbine.hpp"
 
 double getValue(const std::map<double, std::map<double, double>>& map, double x, double y);
 std::pair<double, double> getValue(const std::map<double, double>& map, double x);
+double getDerivative(const std::map<double, std::map<double, double>>& map, double x, double y, int var);
 std::pair<double, double> getDerivative(const std::map<double, double>& map, double x);
 std::pair<double, double> interpolate(const std::pair<double, double>& begin, const std::pair<double, double>& end, double x);
 double slope(const std::pair<double, double>& begin, const std::pair<double, double>& end);
@@ -13,11 +15,20 @@ FilePerformanceMap::FilePerformanceMap(
 	std::string filename_efficiency, std::string filename_pi
 ) 
 {
-	auto stream = std::ifstream(filename_efficiency);
-	if(!stream.is_open()){
-		throw std::runtime_error("Stream is not open");
+	{
+		auto stream = std::ifstream(filename_efficiency);
+		if(!stream.is_open()){
+			throw std::runtime_error("Stream is not open");
+		}
+		this->parseFile(stream, this->efficiencyValues);
 	}
-	this->parseFile(stream, this->efficiencyValues);
+	{
+		auto stream = std::ifstream(filename_pi);
+		if(!stream.is_open()){
+			throw std::runtime_error("Stream is not open");
+		}
+		this->parseFile(stream, this->pressureRatioValues);
+	}
 }
 
 void FilePerformanceMap::parseFile(std::ifstream& fstream, std::map<double, std::map<double, double>>& map) {
@@ -52,16 +63,17 @@ void FilePerformanceMap::insertPoint(std::map<double, std::map<double, double>>&
 }
 
 double FilePerformanceMap::getEfficiency(const Turbine& turbine) const {
-	auto n = 12000;
-	auto pi = 1.5;
-	//TODO: Get parameters from turbine
-	return getValue(this->efficiencyValues, n, pi);
+	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
+	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir);
+	auto rpm = n * 60 / (2 * M_PI);
+	return getValue(this->efficiencyValues, rpm, corrected_mdot);
 }
 double FilePerformanceMap::getEfficiencyDerivative(const Turbine& turbine, const Parameter& p) const {
-	auto n = 12000;
-	auto pi = 1.5;
-	//TODO: Get parameters from turbine
-	return getValueDerivative(this->efficiencyValues, n, pi);
+	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
+	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir);
+	auto rpm = n * 60 / (2 * M_PI);
+	//TODO: Return the actual derivative
+	return getDerivative(this->efficiencyValues, n, pi, 1);
 
 }
 
@@ -103,7 +115,7 @@ std::pair<double, double> getValue(const std::map<double, double>& map, double x
 }
 
 
-double getValue(const std::map<double, std::map<double, double>>& map, double x, double y, int var){
+double getDerivative(const std::map<double, std::map<double, double>>& map, double x, double y, int var){
 	auto before = map.begin()->first;
 	auto after = before;
 	for(const auto& pair: map){

@@ -6,6 +6,7 @@
 class FilePerformanceMap: public PerformanceMap {
 		void parseFile(std::ifstream& file, std::map<double, std::map<double, double>>& map);
 		std::map<double, std::map<double, double>> efficiencyValues;
+		std::map<double, std::map<double, double>> pressureRatioValues;
 		void insertPoint(std::map<double, std::map<double, double>>& map, double x, double y, double v);
 	public:
 		FilePerformanceMap(
