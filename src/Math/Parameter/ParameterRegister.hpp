@@ -1,5 +1,8 @@
 #pragma once
 
+#include<iostream>
+#include<iomanip>
+
 class ParameterRegister {
 	std::map<ParameterId, std::weak_ptr<Parameter>> parameterContainer;
 	ParameterId nextId;
@@ -26,6 +29,7 @@ class ParameterRegister {
 		}
 
 		void printParameterTable(){
+			std::cout<<std::setprecision(2)<<std::fixed;
 			for(const auto& parameterp: this->parameterContainer){
 				const auto& lp = parameterp.second.lock();
 				std::cout<<'\t'<<lp->getId()

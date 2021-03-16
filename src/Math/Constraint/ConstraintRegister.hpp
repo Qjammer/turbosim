@@ -1,5 +1,7 @@
 #pragma once
-#include "../../Component/Component.hpp"
+
+#include<iostream>
+#include<iomanip>
 
 class ConstraintRegister {
 	std::map<ConstraintId, std::weak_ptr<Constraint>> constraintContainer;
@@ -40,6 +42,7 @@ class ConstraintRegister {
 		}
 
 		void printConstraintTable() const {
+			std::cout<<std::setprecision(5)<<std::fixed;
 			for(const auto& constraintp: this->constraintContainer){
 				const auto& lc = constraintp.second.lock();
 				std::cout<<'\t'<<lc->getId()<<'\t'<<lc->getValue()<<'\n';
