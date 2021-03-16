@@ -1,6 +1,7 @@
 #include "FilePerformanceMap.hpp"
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 double getValue(const std::map<double, std::map<double, double>>& map, double x, double y);
 std::pair<double, double> getValue(const std::map<double, double>& map, double x);

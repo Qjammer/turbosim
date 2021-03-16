@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include <math.h>
+#include <cmath>
 #include "../Boundary.hpp"
 #include "../../Math/Parameter/Parameter.hpp"
 #define AIR_GAMMA 1.4

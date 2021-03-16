@@ -1,5 +1,5 @@
 #include "./JacobianCalculator.hpp"
-#include <math.h>
+#include <cmath>
 
 Eigen::SparseMatrix<double> JacobianCalculator::getJacobian(const std::map<ConstraintId, std::weak_ptr<Constraint>>& constraints) const
 {
