@@ -2,9 +2,14 @@
 #include "PerformanceMap.hpp"
 #include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
 
+class TurbineIsentropicProcessConstraint;
+class TurbineEnergyConstraint;
+class TurbineMassConstraint;
+class TurbinePerformanceConstraint;
+
 Turbine::Turbine(
 	ComponentId id,
-	std::array<ConstraintId, 3> constraintIds,
+	std::array<ConstraintId, 4> constraintIds,
 	std::unique_ptr<PerformanceMap> performanceMap
 )
 	: Component(id)
@@ -13,6 +18,7 @@ Turbine::Turbine(
 	this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineMassConstraint>(constraintIds[0], this)));
 	this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineEnergyConstraint>(constraintIds[1], this)));
 	this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbineIsentropicProcessConstraint>(constraintIds[2], this)));
+	this->constraints.push_back(std::static_pointer_cast<Constraint>(std::make_shared<TurbinePerformanceConstraint>(constraintIds[3], this)));
 }
 
 bool Turbine::registerFluidBoundary(std::shared_ptr<FluidBoundary> boundary, int localBoundary){
@@ -239,4 +245,22 @@ class TurbineIsentropicProcessConstraint: public Constraint {
 			return exp * powf(PRatio, exp - 1) * dPRatiodParam;
 		}
 
+};
+
+class TurbinePerformanceConstraint: public Constraint {
+		Turbine* turbine;
+	public:
+		TurbinePerformanceConstraint(ConstraintId id, Turbine* turbine): Constraint(id), turbine(turbine)
+		{}
+
+		double getValue() const override {
+			return 0;
+		}
+		double getValueDerivative(const Parameter& parameter) const override {
+			return 0;
+		}
+
+		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
+			return this->turbine->getDependentParameters();
+		}
 };

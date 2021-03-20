@@ -4,9 +4,6 @@
 #include "../../Boundary/AxialBoundary/AxialBoundary.hpp"
 #include "../../Math/Constraint/Constraint.hpp"
 
-class TurbineIsentropicProcessConstraint;
-class TurbineEnergyConstraint;
-class TurbineMassConstraint;
 class PerformanceMap;
 class FluidBoundary;
 class TurbineFactory;
@@ -15,7 +12,6 @@ class FilePerformanceMap;
 class Turbine : public Component {
 	friend TurbineFactory;
 	friend FilePerformanceMap;
-	friend TurbineEnergyConstraint;
 	friend int main(int, char**);
 		std::shared_ptr<FluidBoundary> inlet;
 		bool inletDir;
@@ -29,7 +25,7 @@ class Turbine : public Component {
 	public:
 		Turbine(
 			ComponentId id,
-			std::array<ConstraintId, 3> constraintIds,
+			std::array<ConstraintId, 4> constraintIds,
 			std::unique_ptr<PerformanceMap> performanceMap
 		);
 
