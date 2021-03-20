@@ -10,10 +10,13 @@ class TurbineMassConstraint;
 class PerformanceMap;
 class FluidBoundary;
 class TurbineFactory;
+class FilePerformanceMap;
 
 class Turbine : public Component {
 	friend TurbineFactory;
+	friend FilePerformanceMap;
 	friend TurbineEnergyConstraint;
+	friend int main(int, char**);
 		std::shared_ptr<FluidBoundary> inlet;
 		bool inletDir;
 		std::shared_ptr<FluidBoundary> outlet;
@@ -57,111 +60,4 @@ class Turbine : public Component {
 
 		double getAxialPower() const;
 		double getAxialPowerDerivative(const Parameter& p) const;
-};
-
-#include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
-class TurbineMassConstraint : public Constraint {
-	Turbine* turbine;
-	public:
-		TurbineMassConstraint(ConstraintId id, Turbine* turbine): Constraint(id), turbine(turbine)
-		{}
-
-		double getValue() const override {
-			return this->turbine->getInletMassFlow() + this->turbine->getOutletMassFlow();
-		}
-
-		double getValueDerivative(const Parameter& parameter) const override {
-			return this->turbine->getInletMassFlowDerivative(parameter) + this->turbine->getOutletMassFlowDerivative(parameter);
-		}
-
-		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
-			return this->turbine->getDependentParameters();
-		}
-
-};
-
-class TurbineEnergyConstraint: public Constraint {
-		Turbine* turbine;
-	public:
-		TurbineEnergyConstraint(ConstraintId id, Turbine* turbine): Constraint(id), turbine(turbine)
-		{}
-
-		double getValue() const override {
-			return this->getInletEnergy()
-			     + this->getOutletEnergy()
-				 + this->turbine->getAxialPower();
-
-		}
-		double getValueDerivative(const Parameter& parameter) const override {
-			return this->getInletEnergyDerivative(parameter)
-				 + this->getOutletEnergyDerivative(parameter)
-				 + this->turbine->getAxialPowerDerivative(parameter);
-		}
-
-		double getInletEnergy() const {
-			auto mdot = this->turbine->getInletMassFlow();
-			auto h = this->turbine->getInletTotalEnthalpy();
-			return mdot * h;
-		}
-		double getInletEnergyDerivative(const Parameter& p) const {
-			auto mdot  = this->turbine->getInletMassFlow();
-			auto mdotD = this->turbine->getInletMassFlowDerivative(p);
-			auto h  = this->turbine->getInletTotalEnthalpy();
-			auto hD = this->turbine->getInletTotalEnthalpyDerivative(p);
-			return mdot * hD + mdotD * h;
-		}
-
-		double getOutletEnergy() const {
-			auto mdot = this->turbine->getOutletMassFlow();
-			auto h = this->turbine->getOutletTotalEnthalpy();
-			return mdot * h;
-		}
-		double getOutletEnergyDerivative(const Parameter& p) const {
-			auto mdot  = this->turbine->getOutletMassFlow();
-			auto mdotD = this->turbine->getOutletMassFlowDerivative(p);
-			auto h  = this->turbine->getOutletTotalEnthalpy();
-			auto hD = this->turbine->getOutletTotalEnthalpyDerivative(p);
-			return mdot * hD + mdotD * h;
-		}
-
-		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
-			return this->turbine->getDependentParameters();
-		}
-};
-
-class TurbineIsentropicProcessConstraint: public Constraint {
-		Turbine* turbine;
-	public:
-		TurbineIsentropicProcessConstraint(ConstraintId id, Turbine* turbine): Constraint(id), turbine(turbine)
-		{}
-
-		double getValue() const override {
-			auto tratio = this->turbine->getTRatio();
-			auto Pratio = this->getExpPRatio();
-			return tratio - Pratio;
-		}
-
-		double getValueDerivative(const Parameter& parameter) const override {
-			auto tratioD = this->turbine->getTRatioDerivative(parameter);
-			auto PratioD = this->getExpPRatioDerivative(parameter);
-			return tratioD - PratioD;
-		}
-
-		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
-			return this->turbine->getDependentParameters();
-		}
-
-		double getExpPRatio() const {
-			double exp = (AIR_GAMMA - 1)/AIR_GAMMA;
-			double PRatio = this->turbine->getPRatio();
-			return powf(PRatio, exp);
-		}
-
-		double getExpPRatioDerivative(const Parameter& p) const {
-			double exp = (AIR_GAMMA - 1)/AIR_GAMMA;
-			double PRatio = this->turbine->getPRatio();
-			double dPRatiodParam = this->turbine->getPRatioDerivative(p);
-			return exp * powf(PRatio, exp - 1) * dPRatiodParam;
-		}
-
 };

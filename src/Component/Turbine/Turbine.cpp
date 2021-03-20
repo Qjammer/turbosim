@@ -1,5 +1,6 @@
 #include "Turbine.hpp"
 #include "PerformanceMap.hpp"
+#include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
 
 Turbine::Turbine(
 	ComponentId id,
@@ -134,7 +135,6 @@ double Turbine::getAxialPowerDerivative(const Parameter& p) const {
 	return this->fwdAxle->getPowerDerivative(p,this->fwdAxleDir);
 }
 
-/*
 class TurbineMassConstraint : public Constraint {
 	Turbine* turbine;
 	public:
@@ -240,4 +240,3 @@ class TurbineIsentropicProcessConstraint: public Constraint {
 		}
 
 };
-*/
