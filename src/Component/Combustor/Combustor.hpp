@@ -7,6 +7,9 @@
 #define FUEL_HEAT_ENERGY 43.1e6
 #define FUEL_TEMPERATURE 273
 #define PRODUCTS_FORMATION_ENTHALPY (AIR_CP * FUEL_TEMPERATURE)
+#define COMBUSTOR_PRESSURE_DROP_RATIO 0.9
+#define COMBUSTION_EFFICIENCY 0.9
+
 class CombustorMassConstraint;
 class CombustorEnergyConstraint;
 class CombustorIsobaricProcessConstraint;
@@ -204,11 +207,11 @@ class CombustorIsobaricProcessConstraint: public Constraint {
 		{}
 
 		double getValue() const override {
-			return this->combustor->inlet->getPressure() - this->combustor->outlet->getPressure();
+			return COMBUSTOR_PRESSURE_DROP_RATIO * this->combustor->inlet->getPressure() - this->combustor->outlet->getPressure();
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
-			return this->combustor->inlet->getPressureDerivative(parameter) - this->combustor->outlet->getPressureDerivative(parameter);
+			return COMBUSTOR_PRESSURE_DROP_RATIO * this->combustor->inlet->getPressureDerivative(parameter) - this->combustor->outlet->getPressureDerivative(parameter);
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
