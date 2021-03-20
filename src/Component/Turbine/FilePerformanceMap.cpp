@@ -71,10 +71,18 @@ double FilePerformanceMap::getEfficiency(const Turbine& turbine) const {
 }
 double FilePerformanceMap::getEfficiencyDerivative(const Turbine& turbine, const Parameter& p) const {
 	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
-	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir);
-	auto rpm = n * 60 / (2 * M_PI);
-	//TODO: Return the actual derivative
-	return getDerivative(this->efficiencyValues, n, pi, 1);
+	auto dndp = turbine.fwdAxle->getVelocityDerivative(p, turbine.fwdAxleDir);
+	auto mdot =  - turbine.inlet->getMassFlow(turbine.inletDir);
+	auto dmdotdp =  - turbine.inlet->getMassFlowDerivative(p, turbine.inletDir);
+	auto drpmdn = 60 / (2 * M_PI);
+	auto rpm = n * drpmdn;
+
+	auto deffdrpm = getDerivative(this->efficiencyValues, rpm, mdot, 0);
+	auto deffdmdot = getDerivative(this->efficiencyValues, rpm, mdot, 1);
+
+	auto deffdn = deffdrpm * drpmdn; 
+
+	return deffdn * dndp + deffdmdot * dmdotdp;
 
 }
 
