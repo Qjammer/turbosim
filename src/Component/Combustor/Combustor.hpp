@@ -4,7 +4,7 @@
 #include "../../Boundary/AxialBoundary/AxialBoundary.hpp"
 #include "../../Math/Constraint/Constraint.hpp"
 
-#define FUEL_HEAT_ENERGY 46.2e6
+#define FUEL_HEAT_ENERGY 43.1e6
 #define FUEL_TEMPERATURE 273
 #define PRODUCTS_FORMATION_ENTHALPY (AIR_CP * FUEL_TEMPERATURE)
 class CombustorMassConstraint;
@@ -65,6 +65,7 @@ class Combustor : public Component {
 				allParams.insert(allParams.end(), PParams.begin(), PParams.end());
 			}
 
+			allParams.push_back(this->mdot_f);
 			return allParams;
 		}
 
@@ -203,12 +204,10 @@ class CombustorIsobaricProcessConstraint: public Constraint {
 		{}
 
 		double getValue() const override {
-			//TODO
 			return this->combustor->inlet->getPressure() - this->combustor->outlet->getPressure();
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
-			//TODO
 			return this->combustor->inlet->getPressureDerivative(parameter) - this->combustor->outlet->getPressureDerivative(parameter);
 		}
 
