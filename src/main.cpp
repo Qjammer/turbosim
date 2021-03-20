@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Kernel.hpp"
-#include "Tests.hpp"
+
+void tests();
 
 int main(int, char**) {
 
