@@ -110,17 +110,17 @@ double FilePerformanceMap::getPressureRatioDerivative(const Turbine& turbine, co
 
 
 double getValue(const std::map<double, std::map<double, double>>& map, double x, double y){
-	auto before = map.begin()->first;
+	auto before = map.begin();
 	auto after = before;
-	for(const auto& pair: map){
-		after = pair.first;
-		if( after >= x ){
+	for(auto it = map.begin(); it != map.end(); it++){
+		after = it;
+		if( after->first >= x ){
 			break;
 		}
 		before = after;
 	}
-	std::pair<double, double> beforeVal = {before, getValue(map.at(before), y).second};
-	std::pair<double, double> afterVal = {after, getValue(map.at(after), y).second};
+	std::pair<double, double> beforeVal = {before->first, getValue(map.at(before->first), y).second};
+	std::pair<double, double> afterVal = {after->first, getValue(map.at(after->first), y).second};
 
 	return interpolate(beforeVal, afterVal, x).second;
 }
@@ -140,22 +140,22 @@ std::pair<double, double> getValue(const std::map<double, double>& map, double x
 
 
 double getDerivative(const std::map<double, std::map<double, double>>& map, double x, double y, int var){
-	auto before = map.begin()->first;
+	auto before = map.begin();
 	auto after = before;
-	for(const auto& pair: map){
-		after = pair.first;
-		if( after >= x ){
+	for(auto it = map.begin(); it != map.end(); it++){
+		after = it;
+		if( after->first >= x ){
 			break;
 		}
 		before = after;
 	}
 	if(var == 0){
-		std::pair<double, double> beforeVal = {before, getValue(map.at(before), y).second};
-		std::pair<double, double> afterVal = {after, getValue(map.at(after), y).second};
+		std::pair<double, double> beforeVal = {before->first, getValue(map.at(before->first), y).second};
+		std::pair<double, double> afterVal = {after->first, getValue(map.at(after->first), y).second};
 		return slope(beforeVal, afterVal);
 	} else if(var == 1) {
-		std::pair<double, double> slopeBefore = {before, getDerivative(map.at(before), y).second};
-		std::pair<double, double> slopeAfter = {after, getDerivative(map.at(after), y).second};
+		std::pair<double, double> slopeBefore = {before->first, getDerivative(map.at(before->first), y).second};
+		std::pair<double, double> slopeAfter = {after->first, getDerivative(map.at(after->first), y).second};
 		return interpolate(slopeBefore, slopeAfter, x).second;
 	} else {
 		return 0.0;
