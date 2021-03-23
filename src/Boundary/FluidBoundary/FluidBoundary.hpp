@@ -157,13 +157,30 @@ class FluidBoundary: public Boundary {
 
 		double getCorrectedMassFlow(bool orientation) const {
 			auto m = this->getMassFlow(orientation);
-			auto theta = this->getTheta();
-			auto delta = this->getDelta();
+			auto T = this->getTemperature();
+			auto P = this->getPressure();
 
-			return m * sqrt(theta) / delta;
+			return m * sqrt(T) / P;
 		}
 
-		//TODO: Derivative
+		double getCorrectedMassFlowDerivative(const Parameter& p, bool orientation) const {
+			auto m = this->getMassFlow(orientation);
+			auto dmdx = this->getMassFlowDerivative(p, orientation);
+			auto T = this->getTemperature();
+			auto dTdx = this->getTemperatureDerivative(p);
+			auto P = this->getPressure();
+			auto dPdx = this->getPressureDerivative(p);
+
+			auto p1 = dmdx * sqrt(T) / P;
+
+			auto dsrtTdx = dTdx / ( 2 * sqrt(T) );
+			auto p2 = m * dsrtTdx / P;
+
+			auto d1Pdx = - dPdx / (powf(P, 2));
+			auto p3 = m * sqrt(T) * d1Pdx;
+
+			return p1 + p2 + p3;
+		}
 
 		double getSection() const {
 			return this->section;
