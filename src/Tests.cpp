@@ -157,7 +157,7 @@ void test_single_spool_converges() {
 
 	// COMPONENT INSTANTIATION
 	auto tank_C = app->getTankFactory()->build(1, 1.01e5, 288);
-	auto compressor = app->getTurbineFactory()->build(2);
+	auto compressor = app->getTurbineFactory()->build(2, "resources/perf_maps/compressor_eff.tsv", "resources/perf_maps/compressor_pi.tsv");
 	auto combustor = app->getCombustorFactory()->build(3, 0.0002);
 	auto turbine = app->getTurbineFactory()->build(4);
 	auto tank_H = app->getTankFactory()->build(5, 1.013e5, 288);
