@@ -17,9 +17,11 @@ class TurbineFactory
 			, constraintRegister(constraintRegister)
 		{}
 		std::shared_ptr<Turbine> build(
-			ComponentId id
+			ComponentId id,
+			const std::string& efficiency_file = "",
+			const std::string& pi_file = ""
 		) {
-			auto performanceMap = std::make_unique<FilePerformanceMap>("resources/perf_maps/test.tsv", "resources/perf_maps/test.tsv");
+			auto performanceMap = std::make_unique<FilePerformanceMap>(efficiency_file, pi_file);
 			auto turbine = std::make_shared<Turbine>(id, this->constraintRegister->getNextIds<4>(), std::move(performanceMap));
 			this->constraintRegister->registerComponent(*turbine);
 			return turbine;
