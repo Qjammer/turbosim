@@ -65,15 +65,15 @@ void FilePerformanceMap::insertPoint(std::map<double, std::map<double, double>>&
 
 double FilePerformanceMap::getEfficiency(const Turbine& turbine) const {
 	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
-	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir);
+	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
 	auto rpm = n * 60 / (2 * M_PI);
 	return getValue(this->efficiencyValues, rpm, corrected_mdot);
 }
 double FilePerformanceMap::getEfficiencyDerivative(const Turbine& turbine, const Parameter& p) const {
 	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
 	auto dndp = turbine.fwdAxle->getVelocityDerivative(p, turbine.fwdAxleDir);
-	auto mdot =  - turbine.inlet->getMassFlow(turbine.inletDir);
-	auto dmdotdp =  - turbine.inlet->getMassFlowDerivative(p, turbine.inletDir);
+	auto mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
+	auto dmdotdp =  - turbine.inlet->getCorrectedMassFlowDerivative(p, turbine.inletDir) * 1e5;
 	auto drpmdn = 60 / (2 * M_PI);
 	auto rpm = n * drpmdn;
 
