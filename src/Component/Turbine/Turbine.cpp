@@ -254,10 +254,23 @@ class TurbinePerformanceConstraint: public Constraint {
 		{}
 
 		double getValue() const override {
-			return 0;
+			auto pi = this->turbine->getPRatio();
+			auto perf_pi = this->turbine->performanceMap->getPressureRatio(*this->turbine);
+			if(this->turbine->getAxialPower() < 0) {
+				return pi - perf_pi;
+			} else {
+				return pi - 1 / perf_pi;
+			}
 		}
 		double getValueDerivative(const Parameter& parameter) const override {
-			return 0;
+			auto pi_d = this->turbine->getPRatioDerivative(parameter);
+			auto perf_pi = this->turbine->performanceMap->getPressureRatio(*this->turbine);
+			auto perf_pi_d = this->turbine->performanceMap->getPressureRatioDerivative(*this->turbine, parameter);
+			if(this->turbine->getAxialPower() < 0) {
+				return pi_d - perf_pi_d;
+			} else {
+				return pi_d - perf_pi_d / powf(perf_pi, 2);
+			}
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
