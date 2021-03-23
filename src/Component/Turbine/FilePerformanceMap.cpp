@@ -87,10 +87,25 @@ double FilePerformanceMap::getEfficiencyDerivative(const Turbine& turbine, const
 }
 
 double FilePerformanceMap::getPressureRatio(const Turbine& turbine) const {
-	//TODO: Same thing
+	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
+	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
+	auto rpm = n * 60 / (2 * M_PI);
+	return getValue(this->pressureRatioValues, rpm, corrected_mdot);
 }
 double FilePerformanceMap::getPressureRatioDerivative(const Turbine& turbine, const Parameter& p) const {
-	//TODO: Same thing
+	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
+	auto dndp = turbine.fwdAxle->getVelocityDerivative(p, turbine.fwdAxleDir);
+	auto mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
+	auto dmdotdp =  - turbine.inlet->getMassFlowDerivative(p, turbine.inletDir) * 1e5;
+	auto drpmdn = 60 / (2 * M_PI);
+	auto rpm = n * drpmdn;
+
+	auto deffdrpm = getDerivative(this->pressureRatioValues, rpm, mdot, 0);
+	auto deffdmdot = getDerivative(this->pressureRatioValues, rpm, mdot, 1);
+
+	auto deffdn = deffdrpm * drpmdn; 
+
+	return deffdn * dndp + deffdmdot * dmdotdp;
 }
 
 
