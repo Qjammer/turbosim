@@ -219,13 +219,26 @@ class TurbineIsentropicProcessConstraint: public Constraint {
 		double getValue() const override {
 			auto tratio = this->turbine->getTRatio();
 			auto Pratio = this->getExpPRatio();
-			return tratio - Pratio;
+			auto isentropic_eff = this->turbine->performanceMap->getEfficiency(*this->turbine);
+			if(this->turbine->getAxialPower() < 0) {
+				return isentropic_eff * tratio - Pratio;
+			} else {
+				return tratio - isentropic_eff * Pratio;
+			}
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {
 			auto tratioD = this->turbine->getTRatioDerivative(parameter);
 			auto PratioD = this->getExpPRatioDerivative(parameter);
-			return tratioD - PratioD;
+			auto isentropic_eff = this->turbine->performanceMap->getEfficiency(*this->turbine);
+			auto isentropic_eff_d = this->turbine->performanceMap->getEfficiencyDerivative(*this->turbine, parameter);
+			if(this->turbine->getAxialPower() < 0) {
+				auto tratio = this->turbine->getTRatio();
+				return (isentropic_eff * tratioD + isentropic_eff_d * tratio) - PratioD;
+			} else {
+				auto Pratio = this->getExpPRatio();
+				return tratioD - (isentropic_eff * PratioD + isentropic_eff_d * Pratio);
+			}
 		}
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const override {
@@ -269,7 +282,7 @@ class TurbinePerformanceConstraint: public Constraint {
 			if(this->turbine->getAxialPower() < 0) {
 				return pi_d - perf_pi_d;
 			} else {
-				return pi_d - perf_pi_d / powf(perf_pi, 2);
+				return pi_d + perf_pi_d / powf(perf_pi, 2);
 			}
 		}
 
