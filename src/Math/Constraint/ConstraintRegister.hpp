@@ -42,7 +42,7 @@ class ConstraintRegister {
 		}
 
 		void printConstraintTable() const {
-			std::cout<<std::setprecision(5)<<std::fixed;
+			std::cout<<std::setprecision(5)<<std::defaultfloat;
 			for(const auto& constraintp: this->constraintContainer){
 				const auto& lc = constraintp.second.lock();
 				std::cout<<'\t'<<lc->getId()<<'\t'<<lc->getValue()<<'\n';

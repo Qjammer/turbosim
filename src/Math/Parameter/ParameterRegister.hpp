@@ -29,7 +29,7 @@ class ParameterRegister {
 		}
 
 		void printParameterTable(){
-			std::cout<<std::setprecision(2)<<std::fixed;
+			std::cout<<std::setprecision(5)<<std::defaultfloat;
 			for(const auto& parameterp: this->parameterContainer){
 				const auto& lp = parameterp.second.lock();
 				std::cout<<'\t'<<lp->getId()
