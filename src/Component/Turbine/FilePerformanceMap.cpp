@@ -112,12 +112,12 @@ double FilePerformanceMap::getPressureRatioDerivative(const Turbine& turbine, co
 double getValue(const std::map<double, std::map<double, double>>& map, double x, double y){
 	auto before = map.begin();
 	auto after = before;
-	for(auto it = map.begin(); it != map.end(); it++){
+	for(auto it = ++map.begin(); it != map.end(); it++){
+		before = after;
 		after = it;
 		if( after->first >= x ){
 			break;
 		}
-		before = after;
 	}
 	std::pair<double, double> beforeVal = {before->first, getValue(map.at(before->first), y).second};
 	std::pair<double, double> afterVal = {after->first, getValue(map.at(after->first), y).second};
@@ -128,12 +128,12 @@ double getValue(const std::map<double, std::map<double, double>>& map, double x,
 std::pair<double, double> getValue(const std::map<double, double>& map, double x) {
 	auto before = map.begin();
 	auto after = before;
-	for(auto it = map.begin(); it != map.end(); it++){
+	for(auto it = ++map.begin(); it != map.end(); it++){
+		before = after;
 		after = it;
 		if(after->first >= x) {
 			break;
 		}
-		before = after;
 	}
 	return interpolate(*before, *after, x);
 }
@@ -142,12 +142,12 @@ std::pair<double, double> getValue(const std::map<double, double>& map, double x
 double getDerivative(const std::map<double, std::map<double, double>>& map, double x, double y, int var){
 	auto before = map.begin();
 	auto after = before;
-	for(auto it = map.begin(); it != map.end(); it++){
+	for(auto it = ++map.begin(); it != map.end(); it++){
+		before = after;
 		after = it;
 		if( after->first >= x ){
 			break;
 		}
-		before = after;
 	}
 	if(var == 0){
 		std::pair<double, double> beforeVal = {before->first, getValue(map.at(before->first), y).second};
@@ -164,12 +164,12 @@ double getDerivative(const std::map<double, std::map<double, double>>& map, doub
 std::pair<double, double> getDerivative(const std::map<double, double>& map, double x) {
 	auto before = map.begin();
 	auto after = before;
-	for(auto it = map.begin(); it != map.end(); it++){
+	for(auto it = ++map.begin(); it != map.end(); it++){
+		before = after;
 		after = it;
 		if(after->first >= x) {
 			break;
 		}
-		before = after;
 	}
 
 	return {x, slope(*before, *after)};
