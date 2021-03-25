@@ -96,7 +96,7 @@ double FilePerformanceMap::getPressureRatioDerivative(const Turbine& turbine, co
 	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
 	auto dndp = turbine.fwdAxle->getVelocityDerivative(p, turbine.fwdAxleDir);
 	auto mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
-	auto dmdotdp =  - turbine.inlet->getMassFlowDerivative(p, turbine.inletDir) * 1e5;
+	auto dmdotdp =  - turbine.inlet->getCorrectedMassFlowDerivative(p, turbine.inletDir) * 1e5;
 	auto drpmdn = 60 / (2 * M_PI);
 	auto rpm = n * drpmdn;
 
