@@ -8,11 +8,13 @@ class PerformanceMap;
 class FluidBoundary;
 class TurbineFactory;
 class FilePerformanceMap;
+class TurbineIsentropicProcessConstraint;
 class TurbinePerformanceConstraint;
 
 class Turbine : public Component {
 	friend TurbineFactory;
 	friend FilePerformanceMap;
+	friend TurbineIsentropicProcessConstraint;
 	friend TurbinePerformanceConstraint;
 	friend int main(int, char**);
 		std::shared_ptr<FluidBoundary> inlet;
