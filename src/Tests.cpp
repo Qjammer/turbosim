@@ -187,37 +187,40 @@ void test_single_spool_converges() {
 	// COMPONENT INSTANTIATION
 	auto tank_C = app->getTankFactory()->build(1, 1.01e5, 288);
 	auto compressor = app->getTurbineFactory()->build(2, "resources/perf_maps/compressor_eff.tsv", "resources/perf_maps/compressor_pi.tsv");
-	auto combustor = app->getCombustorFactory()->build(3, 0.0002);
+	auto combustor = app->getCombustorFactory()->build(3, 0.0016);
 	auto turbine = app->getTurbineFactory()->build(4, "resources/perf_maps/turbine_eff.tsv", "resources/perf_maps/turbine_pi.tsv");
 	auto tank_H = app->getTankFactory()->build(5, 1.013e5, 288);
 
 	// BOUNDARY INSTANTIATION / WIRING
-	auto fluidB_LP_C = app->getFluidBoundaryFactory()->build(1, 20, 1.008e5, 288, 8.17e-3);
+	auto fluidB_LP_C = app->getFluidBoundaryFactory()->build(1, 19, 1.00e5, 288, 8.17e-3);
 	tank_C->registerFluidBoundary(fluidB_LP_C);
 	compressor->registerFluidBoundary(fluidB_LP_C, 0);
 
-	auto fluidB_HP_C = app->getFluidBoundaryFactory()->build(2, 13.5, 2.5e5, 373, 6.4e-3);
+	auto fluidB_HP_C = app->getFluidBoundaryFactory()->build(2, 22, 1.9e5, 462, 6.4e-3);
 	compressor->registerFluidBoundary(fluidB_HP_C, 1);
 	combustor->registerFluidBoundary(fluidB_HP_C, 0);
 
-	auto axialBoundary = app->getAxialBoundaryFactory()->build(3, 1.7e4, 10800);
+	auto axialBoundary = app->getAxialBoundaryFactory()->build(3, 3.4e5, 8950);
 	turbine->registerAxialBoundary(axialBoundary, 0);
 	compressor->registerAxialBoundary(axialBoundary, 0);
 
-	auto fluidB_HP_H = app->getFluidBoundaryFactory()->build(4, 31, 2.25e5, 415, 3.4e-3);
+	auto fluidB_HP_H = app->getFluidBoundaryFactory()->build(4, 80, 1.7e5, 800, 3.4e-3);
 	combustor->registerFluidBoundary(fluidB_HP_H, 1);
 	turbine->registerFluidBoundary(fluidB_HP_H, 0);
 
-	auto fluidB_LP_H = app->getFluidBoundaryFactory()->build(4, 33, 1.007e5, 408, 5.8e-3);
+	auto fluidB_LP_H = app->getFluidBoundaryFactory()->build(5, 62, 1.0e5, 628, 5.8e-3);
 	turbine->registerFluidBoundary(fluidB_LP_H, 1);
 	tank_H->registerFluidBoundary(fluidB_LP_H);
 
 	app->getParameterRegister()->get(2).lock()->enable(false);// mdot_3
-	app->getParameterRegister()->get(3).lock()->setValue(330);
-	//app->getParameterRegister()->get(8).lock()->enable(false);// P_2
+	app->getParameterRegister()->get(11).lock()->enable(false);// w_3
+	app->getParameterRegister()->get(3).lock()->setValue(630);
 
 	for(int i = 0; i < 100; ++i){
 		app->getNewtonMethod()->iterate();
+		if(i==50){
+			app->getParameterRegister()->get(11).lock()->enable(true);// w_3
+		}
 	}
 	double constraintNorm = app->getConstraintRegister()->getConstraintVectorNorm();
 	assert(constraintNorm < 0.1);
