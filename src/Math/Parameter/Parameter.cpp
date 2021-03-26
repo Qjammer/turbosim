@@ -32,6 +32,9 @@ void Parameter::enable(bool enabled)
 {
 	this->enabled = enabled;
 }
+bool Parameter::enable() const {
+	return this->enabled;
+}
 
 Parameter& Parameter::operator=(double newValue){
 	this->value = newValue;

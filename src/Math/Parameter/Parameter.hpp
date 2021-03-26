@@ -15,6 +15,7 @@ class Parameter {
 		double getDerivative() const;
 		void setValue(double v);
 		void enable(bool);
+		bool enable() const;
 		Parameter& operator =(double newValue);
 		const std::string& getUnits() const;
 		const std::string& getName() const;

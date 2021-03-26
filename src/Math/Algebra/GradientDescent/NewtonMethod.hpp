@@ -50,22 +50,9 @@ class NewtonMethod {
 			const auto parameterValues = this->getParameterValues(this->parameterRegister->getParameterMap());
 			//const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas);
 			const auto updatedParameterValues = this->getUpdatedParameterValues(parameterValues, parameterDeltas2);
-			this->updateParams(this->parameterRegister->getParameterMap(), updatedParameterValues);
+			this->parameterRegister->updateValues(updatedParameterValues);
 		}
 
-		void updateParams(std::map<ParameterId, std::weak_ptr<Parameter>>& parameters, const std::map<ParameterId, double>& newVals) const
-		{
-			for(const auto& valPack: newVals){
-				const auto& parameterId = valPack.first;
-				const auto& parameterVal = valPack.second;
-				if(const auto& param = parameters.find(parameterId); param != parameters.end()){
-					if(const auto& lp = param->second.lock()){
-						lp->setValue(parameterVal);
-					}
-				}
-			}
-
-		}
 
 		std::map<ParameterId, double> getParameterValues(const std::map<ParameterId, std::weak_ptr<Parameter>>& parameters) const
 		{
