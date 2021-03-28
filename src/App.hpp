@@ -65,7 +65,6 @@ class App {
 			return this->combustorFactory;
 		}
 
-
 		std::shared_ptr<FluidBoundaryFactory> getFluidBoundaryFactory() {
 			return this->fluidBoundaryFactory;
 		}
