@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "../Component.hpp"
-#include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
+#include "../Boundary/FluidBoundary/FluidBoundary.hpp"
 #include "../../Math/Constraint/Constraint.hpp"
 
 class TankTemperatureConstraint;

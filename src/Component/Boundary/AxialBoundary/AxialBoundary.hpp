@@ -1,18 +1,19 @@
 #pragma once
-#include "../Boundary.hpp"
-#include "../../Math/Parameter/Parameter.hpp"
+#include "../../Component.hpp"
+#include "../../../Math/Parameter/Parameter.hpp"
 
-class AxialBoundary: public Boundary {
+class AxialBoundary: public Component {
 		std::vector<int> parameterIds;
 		std::shared_ptr<Parameter> velocity;
 		std::shared_ptr<Parameter> power;
 		std::array<bool, 2> registered;// Keeps track if each endpoint is registered
 	public:
-		AxialBoundary(int id,
+		AxialBoundary(
+			ComponentId id,
 			std::shared_ptr<Parameter> velocity,
 			std::shared_ptr<Parameter> power
 		)
-			:Boundary(id), velocity(velocity), power(power), registered({false, false})
+			:Component(id), velocity(velocity), power(power), registered({false, false})
 		{}
 
 		double getVelocity(bool orientation) const {

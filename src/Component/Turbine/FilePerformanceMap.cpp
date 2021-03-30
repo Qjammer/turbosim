@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cmath>
 #include "Turbine.hpp"
-#include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
+#include "../Boundary/FluidBoundary/FluidBoundary.hpp"
 
 double getValue(const std::map<double, std::map<double, double>>& map, double x, double y);
 std::pair<double, double> getValue(const std::map<double, double>& map, double x);

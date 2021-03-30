@@ -1,8 +1,8 @@
 #pragma once
 #include <array>
 #include <cmath>
-#include "../Boundary.hpp"
-#include "../../Math/Parameter/Parameter.hpp"
+#include "../../Component.hpp"
+#include "../../../Math/Parameter/Parameter.hpp"
 #define AIR_GAMMA 1.4
 #define AIR_CP 1000.0
 #define AIR_R ( AIR_CP * (1 - 1 / AIR_GAMMA) )
@@ -10,7 +10,7 @@
 #define AMBIENT_P 101.3e3
 #define AMBIENT_T 289
 
-class FluidBoundary: public Boundary {
+class FluidBoundary: public Component {
 		std::vector<int> parameterIds;
 		std::shared_ptr<Parameter> velocity;
 		std::shared_ptr<Parameter> P;
@@ -24,7 +24,7 @@ class FluidBoundary: public Boundary {
 			std::shared_ptr<Parameter> T,
 			double section
 		)
-			:Boundary(id), velocity(velocity), P(P), T(T), section(section), registered({false,false})
+			:Component(id), velocity(velocity), P(P), T(T), section(section), registered({false,false})
 		{}
 
 		double getVelocity(bool orientation) const {

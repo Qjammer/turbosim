@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "../Boundary/Boundary.hpp"
 #include "../Math/Constraint/Constraint.hpp"
 
 typedef int ComponentId;

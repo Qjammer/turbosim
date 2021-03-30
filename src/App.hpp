@@ -5,8 +5,8 @@
 #include "Math/Algebra/GradientDescent/NewtonMethod.hpp"
 #include "Math/Parameter/ParameterRegister.hpp"
 #include "Math/Constraint/ConstraintRegister.hpp"
-#include "Boundary/FluidBoundary/FluidBoundaryFactory.hpp"
-#include "Boundary/AxialBoundary/AxialBoundaryFactory.hpp"
+#include "Component/Boundary/FluidBoundary/FluidBoundaryFactory.hpp"
+#include "Component/Boundary/AxialBoundary/AxialBoundaryFactory.hpp"
 #include "Component/Tank/TankFactory.hpp"
 #include "Component/Turbine/TurbineFactory.hpp"
 #include "Component/Combustor/CombustorFactory.hpp"
@@ -14,6 +14,7 @@
 class App {
 		std::shared_ptr<ParameterRegister> parameterRegister;
 		std::shared_ptr<ConstraintRegister> constraintRegister;
+		std::shared_ptr<ComponentRegister> componentRegister;
 		std::shared_ptr<NewtonMethod> newtonMethod;
 		std::shared_ptr<TurbineFactory> turbineFactory;
 		std::shared_ptr<TankFactory> tankFactory;
@@ -24,6 +25,7 @@ class App {
 		App(
 			std::shared_ptr<ParameterRegister> parameterRegister,
 			std::shared_ptr<ConstraintRegister> constraintRegister,
+			std::shared_ptr<ComponentRegister> componentRegister,
 			std::shared_ptr<NewtonMethod> newtonMethod,
 			std::shared_ptr<TurbineFactory> turbineFactory,
 			std::shared_ptr<TankFactory> tankFactory,
@@ -33,6 +35,7 @@ class App {
 		)
 			: parameterRegister(parameterRegister)
 			, constraintRegister(constraintRegister)
+			, componentRegister(componentRegister)
 			, newtonMethod(newtonMethod)
 			, turbineFactory(turbineFactory)
 			, tankFactory(tankFactory)

@@ -1,6 +1,6 @@
 #include "Turbine.hpp"
 #include "PerformanceMap.hpp"
-#include "../../Boundary/FluidBoundary/FluidBoundary.hpp"
+#include "../Boundary/FluidBoundary/FluidBoundary.hpp"
 
 class TurbineIsentropicProcessConstraint;
 class TurbineEnergyConstraint;

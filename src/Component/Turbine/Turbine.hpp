@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "../Component.hpp"
-#include "../../Boundary/AxialBoundary/AxialBoundary.hpp"
+#include "../Boundary/AxialBoundary/AxialBoundary.hpp"
 #include "../../Math/Constraint/Constraint.hpp"
 
 class PerformanceMap;
