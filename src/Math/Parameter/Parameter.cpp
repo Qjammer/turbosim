@@ -32,7 +32,7 @@ void Parameter::enable(bool enabled)
 {
 	this->enabled = enabled;
 }
-bool Parameter::enable() const {
+bool Parameter::isEnabled() const {
 	return this->enabled;
 }
 

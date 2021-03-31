@@ -10,6 +10,7 @@ class NewtonMethod {
 		JacobianCalculator jacobianCalculator;
 		std::shared_ptr<ParameterRegister> parameterRegister;
 		std::shared_ptr<ConstraintRegister> constraintRegister;
+		float relaxationFactor;
 	public:
 		NewtonMethod(
 			JacobianCalculator jacobianCalculator,
@@ -19,6 +20,7 @@ class NewtonMethod {
 			:jacobianCalculator(jacobianCalculator)
 			,parameterRegister(parameterRegister)
 			,constraintRegister(constraintRegister)
+			,relaxationFactor(0.5)
 		{
 		}
 
@@ -30,21 +32,21 @@ class NewtonMethod {
 			solver.setPivotThreshold(1.0e-10);
 			solver.compute(constraintJacobian);
 			if(solver.info() != Eigen::Success){
-				std::cout<< "decomposition failed\n";
+				std::cerr<< "decomposition failed\n";
 				return;
 			}
 			Eigen::VectorXd parameterDeltas = solver.solve(constraintValues);
 			Eigen::VectorXd parameterDeltas2 = denseJacobian.fullPivHouseholderQr().solve(constraintValues);
 
 			if(solver.info() != Eigen::Success){
-				std::cout<< "solving failed\n";
+				std::cerr<< "solving failed\n";
 				return;
 			}
 
 			/*
-			std::cout<<"SJ\n"<<Eigen::MatrixXd(constraintJacobian)<<'\n';
-			std::cout<<"PD\n"<<Eigen::MatrixXd(parameterDeltas)<<'\n';
-			std::cout<<"PD2\n"<<Eigen::MatrixXd(parameterDeltas2)<<'\n';
+			std::cerr<<"SJ\n"<<Eigen::MatrixXd(constraintJacobian)<<'\n';
+			std::cerr<<"PD\n"<<Eigen::MatrixXd(parameterDeltas)<<'\n';
+			std::cerr<<"PD2\n"<<Eigen::MatrixXd(parameterDeltas2)<<'\n';
 			*/
 
 			const auto parameterValues = this->getParameterValues(this->parameterRegister->getParameterMap());
@@ -76,9 +78,13 @@ class NewtonMethod {
 				const auto& parameterId = parameterPack.first;
 				if(parameterId - 1 < deltas.rows()){
 					const auto& paramDelta = deltas[parameterId - 1];
-					newVals[parameterId] = parameterPack.second - paramDelta;
+					newVals[parameterId] = parameterPack.second -  this->relaxationFactor * paramDelta;
 				}
 			}
 			return newVals;
+		}
+
+		void setRelaxationFactor(float relaxationFactor) {
+			this->relaxationFactor = relaxationFactor;
 		}
 };

@@ -55,7 +55,7 @@ class ParameterRegister {
 
 			for(const auto& parameterp: this->parameterContainer){
 				const auto& lp = parameterp.second.lock();
-				map[lp->getId()] = {lp->getValue(), lp->enable()};
+				map[lp->getId()] = {lp->getValue(), lp->isEnabled()};
 			}
 			return map;
 
