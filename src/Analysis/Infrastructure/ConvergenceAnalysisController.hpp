@@ -15,26 +15,24 @@ class ConvergenceAnalysisController {
 		{}
 
 		int operator()(const std::vector<std::string>& argv){
-			/*
-			float relaxationFactor = stof(argv[0]);
-			float variationHalfWidth = stof(argv[1]);
-			double testPoints = stod(argv[2]);
-			double maxIterations = stod(argv[3]);
-			*/
-			//std::string output_filename = argv[4];
+			assert(argv.size() == 6);
+
+			float relaxationFactor = stof(argv[1]);
+			float variationHalfWidth = stof(argv[2]);
+			double testPoints = stod(argv[3]);
+			double maxIterations = stod(argv[4]);
+			std::string output_filename = argv[5];
 
 			this->setup->setup();
 
-			std::string output_filename("resources/analysis_results/test2.tsv");
 			std::ofstream output_stream(output_filename);
 
 			this->analysis->analyze(
-				0.5,
-				0.5,
-				21,
-				200,
+				relaxationFactor,
+				variationHalfWidth,
+				testPoints,
+				maxIterations,
 				&output_stream
-
 			);
 
 			return 0;
