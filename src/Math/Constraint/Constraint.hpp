@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "../Parameter/Parameter.hpp"
+
+class Parameter;
 
 typedef int ConstraintId;
+
 class Constraint {
 		ConstraintId id;
 	public:

@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <iostream>
+#include "../Jacobian/JacobianCalculator.hpp"
 #include "Math/Parameter/ParameterRegister.hpp"
 #include "Math/Constraint/ConstraintRegister.hpp"
 
@@ -29,7 +30,7 @@ class NewtonMethod {
 			Eigen::SparseMatrix<double> constraintJacobian = this->jacobianCalculator.getJacobian(this->constraintRegister->getAllConstraints());
 			Eigen::MatrixXd denseJacobian = constraintJacobian.toDense();
 			Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<Eigen::SparseMatrix<double>::StorageIndex>> solver;
-			solver.setPivotThreshold(1.0e-10);
+			solver.setPivotThreshold(1.0e-20);
 			solver.compute(constraintJacobian);
 			if(solver.info() != Eigen::Success){
 				std::cerr<< "decomposition failed\n";

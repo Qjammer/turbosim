@@ -1,4 +1,5 @@
 #include "Constraint.hpp"
+#include "../Parameter/Parameter.hpp"
 
 Constraint::Constraint(int id)
 	:id(id)

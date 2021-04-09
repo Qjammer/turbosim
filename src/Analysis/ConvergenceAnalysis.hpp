@@ -1,17 +1,38 @@
 #pragma once
 #include<array>
+#include "../Math/Algebra/NewtonMethod/NewtonMethod.hpp"
+#include "../Math/Constraint/ConstraintRegister.hpp"
+#include "../Math/Parameter/ParameterRegister.hpp"
 
 class ConvergenceAnalysis {
+		std::shared_ptr<NewtonMethod> newtonMethod;
+		std::shared_ptr<ConstraintRegister> constraintRegister;
+		std::shared_ptr<ParameterRegister> parameterRegister;
 	public:
-		template<unsigned int testPoints, unsigned int maxIterations>
-		void analyze(App& app, float relaxationFactor) const {
-			app.getNewtonMethod()->setRelaxationFactor(relaxationFactor);
+		ConvergenceAnalysis(
+			std::shared_ptr<NewtonMethod> newtonMethod,
+			std::shared_ptr<ConstraintRegister> constraintRegister,
+			std::shared_ptr<ParameterRegister> parameterRegister
+		)
+			: newtonMethod(newtonMethod)
+			, constraintRegister(constraintRegister)
+			, parameterRegister(parameterRegister)
+		{}
+
+		void analyze(
+			float relaxationFactor,
+			float variationHalfWidth,
+			uint testPoints,
+			uint maxIterations,
+			std::ostream* output_stream
+		) const {
+			this->newtonMethod->setRelaxationFactor(relaxationFactor);
 			// Find nearby minimum
 			double minNorm = std::numeric_limits<double>::infinity();
 			std::map<ParameterId, double> minNormValues;
 			unsigned int itWithMinNorm = 0;
 			for(unsigned int i = 0; i < maxIterations; ++i) {
-				double constraintNorm = app.getConstraintRegister()->getConstraintVectorNorm();
+				double constraintNorm = this->constraintRegister->getConstraintVectorNorm();
 
 				if(std::isnan(constraintNorm)){
 					std::cerr<<"NAN"<<std::endl;
@@ -19,7 +40,7 @@ class ConvergenceAnalysis {
 				}
 				if(constraintNorm < minNorm){
 					minNorm = constraintNorm;
-					minNormValues = app.getParameterRegister()->getValues();
+					minNormValues = this->parameterRegister->getValues();
 					itWithMinNorm = i;
 				}
 
@@ -28,29 +49,29 @@ class ConvergenceAnalysis {
 					break;
 				}
 
-				app.getNewtonMethod()->iterate();
+				this->newtonMethod->iterate();
 			}
 
 
 			// For each parameter
-			auto parameters = app.getParameterRegister()->getParameterMap();
+			auto parameters = this->parameterRegister->getParameterMap();
 			for(const auto& p: parameters) {
 				const auto& lp = p.second.lock();
 				if(!lp->isEnabled()){
 					continue;
 				}
-				app.getParameterRegister()->updateValues(minNormValues);
+				this->parameterRegister->updateValues(minNormValues);
 				auto val = lp->getValue();
 
 				// Vary parameter from 50% to 150%
-				for(const auto frac: getTestPoints<testPoints>(0.5, 1.5)){
+				for(const auto frac: getTestPoints(testPoints, 1.0 - variationHalfWidth, 1.0 + variationHalfWidth)){
 
-					app.getParameterRegister()->updateValues(minNormValues);
+					this->parameterRegister->updateValues(minNormValues);
 					lp->setValue(val * frac);
 					double constraintNorm = std::numeric_limits<double>::infinity();
 					unsigned int i = 0;
 					for(i = 0; i < maxIterations; ++i) {
-						constraintNorm = app.getConstraintRegister()->getConstraintVectorNorm();
+						constraintNorm = this->constraintRegister->getConstraintVectorNorm();
 
 						if(std::isnan(constraintNorm)){
 							break;
@@ -59,17 +80,17 @@ class ConvergenceAnalysis {
 							break;
 						}
 
-						app.getNewtonMethod()->iterate();
+						this->newtonMethod->iterate();
 					}
-					std::cout<<lp->getId()<<'\t'<<lp->getName()<<'\t'<<val*frac<<'\t'<<frac<<'\t'<<i<<'\t'<<constraintNorm<<'\n';
+					*output_stream<<lp->getId()<<'\t'<<lp->getName()<<'\t'<<val*frac<<'\t'<<frac<<'\t'<<i<<'\t'<<constraintNorm<<'\n';
 				}
+				*output_stream<< std::flush;
 
 			}
 		}
 
-		template<unsigned int N>
-		std::array<double, N> getTestPoints(double minFrac, double maxFrac) const {
-			std::array<double, N> arr;
+		std::vector<double> getTestPoints(unsigned int N, double minFrac, double maxFrac) const {
+			std::vector<double> arr(N);
 			for(unsigned int i = 0; i < N; ++i) {
 				arr[i] = (minFrac + (maxFrac - minFrac) * (double(i) / (N-1)));
 			}

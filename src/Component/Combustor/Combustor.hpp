@@ -3,6 +3,7 @@
 #include "../Component.hpp"
 #include "../Boundary/AxialBoundary/AxialBoundary.hpp"
 #include "../../Math/Constraint/Constraint.hpp"
+#include "../Boundary/FluidBoundary/FluidBoundary.hpp"
 
 #define FUEL_HEAT_ENERGY 43.1e6
 #define FUEL_TEMPERATURE 273

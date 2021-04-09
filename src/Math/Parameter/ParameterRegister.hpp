@@ -3,6 +3,7 @@
 #include<iostream>
 #include<iomanip>
 #include<fstream>
+#include "Parameter.hpp"
 
 class ParameterRegister {
 	std::map<ParameterId, std::weak_ptr<Parameter>> parameterContainer;

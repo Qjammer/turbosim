@@ -2,6 +2,7 @@
 
 #include<iostream>
 #include<iomanip>
+#include "Constraint.hpp"
 
 class ConstraintRegister {
 	std::map<ConstraintId, std::weak_ptr<Constraint>> constraintContainer;
