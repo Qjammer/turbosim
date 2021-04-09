@@ -38,15 +38,27 @@ class Kernel {
 			parameterRegister
 		);
 		auto convergenceAnalysis = std::make_shared<ConvergenceAnalysis>(NM, constraintRegister, parameterRegister);
+		auto operatingLineAnalysis = std::make_shared<OperatingLineAnalysis>(NM, constraintRegister, parameterRegister);
+		auto iterateUntilConverged = std::make_shared<IterateUntilConverged>(NM, constraintRegister, parameterRegister);
 
 		//INFRASTRUCTURE
 		auto convergenceAnalysisController = std::make_unique<ConvergenceAnalysisController>(
 			singleSpoolSetup,
 			convergenceAnalysis
 		);
+		auto operatingLineAnalysisController = std::make_unique<OperatingLineAnalysisController>(
+			singleSpoolSetup,
+			operatingLineAnalysis
+		);
+		auto iterateUntilConvergedController = std::make_unique<IterateUntilConvergedController>(
+			singleSpoolSetup,
+			iterateUntilConverged
+		);
 
 		return std::make_unique<App>(
-			std::move(convergenceAnalysisController)
+			std::move(convergenceAnalysisController),
+			std::move(operatingLineAnalysisController),
+			std::move(iterateUntilConvergedController)
 		);
 	}
 };

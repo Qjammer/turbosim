@@ -208,7 +208,7 @@ class CombustorIsobaricProcessConstraint: public Constraint {
 		{}
 
 		double getValue() const override {
-			return COMBUSTOR_PRESSURE_DROP_RATIO * this->combustor->inlet->getPressure() - this->combustor->outlet->getPressure();
+			return COMBUSTOR_PRESSURE_DROP_RATIO * (this->combustor->inlet->getPressure()- 101325) - (this->combustor->outlet->getPressure() - 101325);
 		}
 
 		double getValueDerivative(const Parameter& parameter) const override {

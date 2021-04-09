@@ -1,6 +1,6 @@
 #pragma once
-#include "../ConvergenceAnalysis.hpp"
-#include "../../Setups/SingleSpoolSetup.hpp"
+#include "../Application/ConvergenceAnalysis.hpp"
+#include "../../../Setups/SingleSpoolSetup.hpp"
 
 class ConvergenceAnalysisController {
 		std::shared_ptr<SingleSpoolSetup> setup;

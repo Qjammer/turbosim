@@ -1,8 +1,8 @@
 #pragma once
-#include<array>
-#include "../Math/Algebra/NewtonMethod/NewtonMethod.hpp"
-#include "../Math/Constraint/ConstraintRegister.hpp"
-#include "../Math/Parameter/ParameterRegister.hpp"
+
+#include "../../../Math/Algebra/NewtonMethod/NewtonMethod.hpp"
+#include "../../../Math/Constraint/ConstraintRegister.hpp"
+#include "../../../Math/Parameter/ParameterRegister.hpp"
 
 class ConvergenceAnalysis {
 		std::shared_ptr<NewtonMethod> newtonMethod;
