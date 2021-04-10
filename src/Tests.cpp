@@ -1,5 +1,5 @@
-#include "Kernel.hpp"
-
+//#include "Kernel.hpp"
+/*
 void test_tank_converges_outwards_flow(){
 	std::cout<<__FUNCTION__<<std::endl;
 	auto app = Kernel().build();
@@ -227,7 +227,9 @@ void test_single_spool_converges() {
 	std::cout<<"PASSED"<<std::endl;
 }
 
+*/
 void tests(){
+	/*
 	test_tank_converges_outwards_flow();
 	test_tank_converges_inwards_flow();
 	test_turbine_converges();
@@ -236,4 +238,5 @@ void tests(){
 	test_compressor_with_tanks_converges();
 	test_4_tanks_2_turbines_converges();
 	test_single_spool_converges();
+	*/
 }
