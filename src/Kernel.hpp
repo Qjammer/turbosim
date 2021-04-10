@@ -21,7 +21,7 @@ class Kernel {
 		auto constraintRegister = std::make_shared<ConstraintRegister>();
 		auto componentRegister = std::make_shared<ComponentRegister>();
 		JacobianCalculator JC{};
-		auto NM = std::make_shared<NewtonMethod>(JC,parameterRegister, constraintRegister);
+		auto NM = std::make_shared<NewtonMethod>(JC, parameterRegister, constraintRegister);
 		auto turbineFactory = std::make_shared<TurbineFactory>(parameterRegister, constraintRegister, componentRegister);
 		auto tankFactory = std::make_shared<TankFactory>(parameterRegister, constraintRegister, componentRegister);
 		auto combustorFactory = std::make_shared<CombustorFactory>(parameterRegister, constraintRegister, componentRegister);
@@ -41,7 +41,7 @@ class Kernel {
 		auto operatingLineAnalysis = std::make_shared<OperatingLineAnalysis>(NM, constraintRegister, parameterRegister);
 		auto iterateUntilConverged = std::make_shared<IterateUntilConverged>(NM, constraintRegister, parameterRegister);
 
-		//INFRASTRUCTURE
+		//UI
 		auto convergenceAnalysisController = std::make_unique<ConvergenceAnalysisController>(
 			singleSpoolSetup,
 			convergenceAnalysis
