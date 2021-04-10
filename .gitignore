@@ -2,6 +2,8 @@
 build
 package
 
+resources/analysis_results
+
 
 
 # gettext binary files
@@ -9,3 +11,4 @@ package
 *.mo
 
 .vscode
+workspace.code-workspace
