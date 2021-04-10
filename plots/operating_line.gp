@@ -12,7 +12,7 @@ do for [i=1:N] {
 
 print first_row_values
 set terminal png size 1414,1000
-set output './operating_line.png'
+set output './img/operating_line.png'
 set title 'Operating line'
 set xlabel 'Fuel mass flow [kg/s]'
 set ylabel 'Variation with respect to initial'

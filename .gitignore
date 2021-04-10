@@ -1,14 +1,12 @@
+# Build files
 .conan
 build
 package
 
+# Generated files
 resources/analysis_results
+plots/img
 
-
-
-# gettext binary files
-*.gmo
-*.mo
-
+# IDE files
 .vscode
 workspace.code-workspace

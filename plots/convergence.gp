@@ -12,7 +12,7 @@ do for [cat in categories] {
 }
 
 set terminal png size 707,500
-set output './convergence.png'
+set output './img/convergence.png'
 set title 'Convergence'
 set xlabel '% deviation from stable point'
 set ylabel 'Iterations'
