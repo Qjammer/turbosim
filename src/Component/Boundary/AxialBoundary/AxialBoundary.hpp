@@ -16,10 +16,10 @@ class AxialBoundary: public Component {
 			:Component(id), velocity(velocity), power(power), registered({false, false})
 		{}
 
-		double getVelocity(bool orientation) const {
+		double getVelocity() const {
 			return this->velocity->getValue();
 		}
-		double getVelocityDerivative(const Parameter& param, bool orientation) const {
+		double getVelocityDerivative(const Parameter& param) const {
 			if(param.getId() == this->velocity->getId()){
 				return this->velocity->getDerivative();
 			}

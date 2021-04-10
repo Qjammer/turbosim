@@ -64,14 +64,14 @@ void FilePerformanceMap::insertPoint(std::map<double, std::map<double, double>>&
 }
 
 double FilePerformanceMap::getEfficiency(const Turbine& turbine) const {
-	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
+	auto n = turbine.fwdAxle->getVelocity();
 	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
 	auto rpm = n * 60 / (2 * M_PI);
 	return getValue(this->efficiencyValues, rpm, corrected_mdot);
 }
 double FilePerformanceMap::getEfficiencyDerivative(const Turbine& turbine, const Parameter& p) const {
-	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
-	auto dndp = turbine.fwdAxle->getVelocityDerivative(p, turbine.fwdAxleDir);
+	auto n = turbine.fwdAxle->getVelocity();
+	auto dndp = turbine.fwdAxle->getVelocityDerivative(p);
 	auto mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
 	auto dmdotdp =  - turbine.inlet->getCorrectedMassFlowDerivative(p, turbine.inletDir) * 1e5;
 	auto drpmdn = 60 / (2 * M_PI);
@@ -87,14 +87,14 @@ double FilePerformanceMap::getEfficiencyDerivative(const Turbine& turbine, const
 }
 
 double FilePerformanceMap::getPressureRatio(const Turbine& turbine) const {
-	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
+	auto n = turbine.fwdAxle->getVelocity();
 	auto corrected_mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
 	auto rpm = n * 60 / (2 * M_PI);
 	return getValue(this->pressureRatioValues, rpm, corrected_mdot);
 }
 double FilePerformanceMap::getPressureRatioDerivative(const Turbine& turbine, const Parameter& p) const {
-	auto n = turbine.fwdAxle->getVelocity(turbine.fwdAxleDir);
-	auto dndp = turbine.fwdAxle->getVelocityDerivative(p, turbine.fwdAxleDir);
+	auto n = turbine.fwdAxle->getVelocity();
+	auto dndp = turbine.fwdAxle->getVelocityDerivative(p);
 	auto mdot =  - turbine.inlet->getCorrectedMassFlow(turbine.inletDir) * 1e5;
 	auto dmdotdp =  - turbine.inlet->getCorrectedMassFlowDerivative(p, turbine.inletDir) * 1e5;
 	auto drpmdn = 60 / (2 * M_PI);

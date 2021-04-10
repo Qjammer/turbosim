@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Kernel.hpp"
 
 int main(int argc, char** argv) {
