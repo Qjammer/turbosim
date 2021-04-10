@@ -49,8 +49,8 @@ class SingleSpoolSetup {
 			combustor->registerFluidBoundary(fluidB_HP_C, 0);
 
 			auto axialBoundary = this->axialBoundaryFactory->build(8, 3.4e5, 8950);
-			turbine->registerAxialBoundary(axialBoundary, 0);
-			compressor->registerAxialBoundary(axialBoundary, 0);
+			turbine->registerAxialBoundary(axialBoundary);
+			compressor->registerAxialBoundary(axialBoundary);
 
 			auto fluidB_HP_H = this->fluidBoundaryFactory->build(9, 80, 1.7e5, 800, 3.4e-3);
 			combustor->registerFluidBoundary(fluidB_HP_H, 1);

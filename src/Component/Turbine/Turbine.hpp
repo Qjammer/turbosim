@@ -35,7 +35,7 @@ class Turbine : public Component {
 
 		bool registerFluidBoundary(std::shared_ptr<FluidBoundary> boundary, int localBoundary);
 
-		bool registerAxialBoundary(std::shared_ptr<AxialBoundary> boundary, int localBoundary);
+		bool registerAxialBoundary(const std::shared_ptr<AxialBoundary>& boundary);
 
 		std::vector<std::weak_ptr<Parameter>> getDependentParameters() const;
 

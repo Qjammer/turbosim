@@ -36,15 +36,14 @@ bool Turbine::registerFluidBoundary(std::shared_ptr<FluidBoundary> boundary, int
 	return true;
 }
 
-bool Turbine::registerAxialBoundary(std::shared_ptr<AxialBoundary> boundary, int localBoundary){
+bool Turbine::registerAxialBoundary(const std::shared_ptr<AxialBoundary>& boundary){
 	auto registerPair = boundary->registerEndpoint();
 	if(!std::get<0>(registerPair)){
 		return false;
 	}
-	if(localBoundary == 0){
-		this->fwdAxle = boundary;
-		this->fwdAxleDir = std::get<1>(registerPair);
-	}
+	this->fwdAxle = boundary;
+	this->fwdAxleDir = std::get<1>(registerPair);
+	return true;
 }
 
 
