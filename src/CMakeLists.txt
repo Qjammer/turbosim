@@ -6,7 +6,7 @@ SET(CMAKE_VERBOSE_MAKEFILE ON)
 SET(CONAN_SYSTEM_INCLUDES ON)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
-SET(CMAKE_CXX_FLAGS "-fdiagnostics-color=always -Wall -Wpedantic -Wextra")
+SET(CMAKE_CXX_FLAGS "-fdiagnostics-color=always -Wall -Wpedantic -Wextra -O2")
 
 conan_basic_setup()
 
