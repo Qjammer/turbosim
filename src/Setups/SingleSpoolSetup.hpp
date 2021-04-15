@@ -40,11 +40,11 @@ class SingleSpoolSetup {
 			auto tank_H = this->tankFactory->build(5, 1.013e5, 288);
 
 			// BOUNDARY INSTANTIATION / WIRING
-			auto fluidB_LP_C = this->fluidBoundaryFactory->build(6, 19, 1.00e5, 288, 8.17e-3);
+			auto fluidB_LP_C = this->fluidBoundaryFactory->build(6, 19, 1.00e5, 288, 1.9e-3);
 			tank_C->registerFluidBoundary(fluidB_LP_C);
 			compressor->registerFluidBoundary(fluidB_LP_C, 0);
 
-			auto fluidB_HP_C = this->fluidBoundaryFactory->build(7, 22, 1.9e5, 462, 6.4e-3);
+			auto fluidB_HP_C = this->fluidBoundaryFactory->build(7, 22, 1.9e5, 462, 1.6e-3);
 			compressor->registerFluidBoundary(fluidB_HP_C, 1);
 			combustor->registerFluidBoundary(fluidB_HP_C, 0);
 
@@ -52,11 +52,11 @@ class SingleSpoolSetup {
 			turbine->registerAxialBoundary(axialBoundary);
 			compressor->registerAxialBoundary(axialBoundary);
 
-			auto fluidB_HP_H = this->fluidBoundaryFactory->build(9, 80, 1.7e5, 800, 3.4e-3);
+			auto fluidB_HP_H = this->fluidBoundaryFactory->build(9, 80, 1.7e5, 800, 1.9e-3);
 			combustor->registerFluidBoundary(fluidB_HP_H, 1);
 			turbine->registerFluidBoundary(fluidB_HP_H, 0);
 
-			auto fluidB_LP_H = this->fluidBoundaryFactory->build(10, 62, 1.0e5, 628, 5.8e-3);
+			auto fluidB_LP_H = this->fluidBoundaryFactory->build(10, 62, 1.0e5, 628, 1.9e-3);
 			turbine->registerFluidBoundary(fluidB_LP_H, 1);
 			tank_H->registerFluidBoundary(fluidB_LP_H);
 
