@@ -11,7 +11,7 @@ set y2label 'Pressure [Pa]' offset -1,0 textcolor rgb "blue"
 set key off
 set ytics nomirror tc "red"
 set y2tics 90000,10000 tc "blue"
-set y2range [100000:170000]
+set y2range [90000:170000]
 
 array Data[17]
 stats file using (Data[int($0+1)] = $2) prefix "B"
@@ -56,15 +56,15 @@ unset xtics
 unset title
 
 set border 4
-set y2range[0:90]
-set yrange[0:90]
+set y2range[0:200]
+set yrange[0:200]
 set xrange[1:6]
 plot vdata using 1:2:xtic(Stagelabels[$1]) axis x1y2 with lines lc "sea-green"
 
 set rmargin at screen 0.93
 set border 8
 set y2label 'Speed [m/s]' offset  -1,0 textcolor rgb "sea-green"
-set y2tics 0,10 tc "sea-green"
+set y2tics 0,20 tc "sea-green"
 plot NaN
 
 unset multiplot
