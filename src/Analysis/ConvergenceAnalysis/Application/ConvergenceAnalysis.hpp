@@ -82,7 +82,8 @@ class ConvergenceAnalysis {
 
 						this->newtonMethod->iterate();
 					}
-					*output_stream<<lp->getId()<<'\t'<<lp->getName()<<'\t'<<val*frac<<'\t'<<frac<<'\t'<<i<<'\t'<<constraintNorm<<'\n';
+					auto solution_drift = this->getSolutionDrift(this->parameterRegister->getValues(), minNormValues);
+					*output_stream<<lp->getId()<<'\t'<<lp->getName()<<'\t'<<val*frac<<'\t'<<frac<<'\t'<<i<<'\t'<<constraintNorm<<'\t'<<solution_drift<<'\n';
 				}
 				*output_stream<< std::flush;
 
@@ -95,5 +96,13 @@ class ConvergenceAnalysis {
 				arr[i] = (minFrac + (maxFrac - minFrac) * (double(i) / (N-1)));
 			}
 			return arr;
+		}
+
+		double getSolutionDrift(const std::map<ParameterId, double>& params, const std::map<ParameterId, double>& reference) const {
+			auto var = 0.0;
+			for (const auto& pair: reference) {
+				var += powf( (params.at(pair.first) / pair.second) - 1.0, 2);
+			}
+			return sqrt(var);
 		}
 };
