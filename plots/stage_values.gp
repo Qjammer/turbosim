@@ -11,7 +11,7 @@ set y2label 'Pressure [Pa]' offset -1,0 textcolor rgb "blue"
 set key off
 set ytics nomirror tc "red"
 set y2tics 90000,10000 tc "blue"
-set y2range [90000:170000]
+set y2range [90000:150000]
 
 array Data[17]
 stats file using (Data[int($0+1)] = $2) prefix "B"
@@ -42,11 +42,15 @@ print Tdata
 print Pdata
 print vdata
 
+set label sprintf("Fuel mass flow = %.3f [g/s]\n\
+Transmitted Axle Power = %.0f [W]\n\
+Axle Rotational Speed = %.0f [rad/s]",\
+	Data[2] * 1000,Data[10], Data[11]) at graph 0.35,graph 0.12
+
 set multiplot
 
 plot Tdata using 1:2:xtic(Stagelabels[$1]) axis x1y1 with lines lc "red",\
 	Pdata using 1:2:xtic(Stagelabels[$1]) axis x1y2 with lines lc "blue"
-
 
 unset xlabel
 unset ylabel
@@ -61,6 +65,7 @@ set yrange[0:200]
 set xrange[1:6]
 plot vdata using 1:2:xtic(Stagelabels[$1]) axis x1y2 with lines lc "sea-green"
 
+unset label
 set rmargin at screen 0.93
 set border 8
 set y2label 'Speed [m/s]' offset  -1,0 textcolor rgb "sea-green"

@@ -1,6 +1,6 @@
 categories = ""
 delimiter = "#"
-file = "../resources/analysis_results/parameter_convergence/result1.tsv"
+file = "../resources/analysis_results/parameter_convergence/parameter_convergence_result_1.tsv"
 stats file using (categories = categories." ".delimiter.strcol(2).delimiter)
 
 unique_categories = ""
@@ -24,7 +24,7 @@ set xrange [-0.5:0.5]
 plot for [cat in unique_categories] file using ($4 - 1):(delimiter.strcol(2).delimiter eq cat && $6 == $6 && $5 < 200 ? $5 :NaN) title cat[2:strlen(cat) -1] with lines
 
 set output './img/convergence_solution_drift.png'
-set title 'Convergence of stable parameters'
+set title 'Solution drift'
 set xlabel 'Initial deviation from stable point'
 set ylabel 'Final deviation from stable point'
 unset yrange
@@ -42,7 +42,7 @@ set ylabel 'Iterations'
 unset xrange
 unset logscale
 
-set yrange [16:30]
+set yrange [16:32]
 set key top left
 set logscale x
 set xrange [1e-3:0.5]
