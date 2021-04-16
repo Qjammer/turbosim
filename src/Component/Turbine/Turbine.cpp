@@ -2,6 +2,8 @@
 #include "PerformanceMap.hpp"
 #include "../Boundary/FluidBoundary/FluidBoundary.hpp"
 
+#define MECH_EFFICIENCY 0.95
+
 class TurbineIsentropicProcessConstraint;
 class TurbineEnergyConstraint;
 class TurbineMassConstraint;
@@ -167,15 +169,16 @@ class TurbineEnergyConstraint: public Constraint {
 		{}
 
 		double getValue() const override {
-			return this->getInletEnergy()
-			     + this->getOutletEnergy()
-				 + this->turbine->getAxialPower();
+			auto fluidDiff = this->getInletEnergy() + this->getOutletEnergy();
+			auto axialPower = this->turbine->getAxialPower();
 
+			return fluidDiff +  axialPower * (axialPower > 0 ? 1/MECH_EFFICIENCY: MECH_EFFICIENCY);
 		}
 		double getValueDerivative(const Parameter& parameter) const override {
-			return this->getInletEnergyDerivative(parameter)
-				 + this->getOutletEnergyDerivative(parameter)
-				 + this->turbine->getAxialPowerDerivative(parameter);
+			auto fluidDiff = this->getInletEnergyDerivative(parameter) + this->getOutletEnergyDerivative(parameter);
+			auto axialPower = this->turbine->getAxialPowerDerivative(parameter);
+
+			return fluidDiff +  axialPower * (axialPower > 0 ? 1/MECH_EFFICIENCY: MECH_EFFICIENCY);
 		}
 
 		double getInletEnergy() const {
